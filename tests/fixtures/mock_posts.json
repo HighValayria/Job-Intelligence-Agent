@@ -1,0 +1,51 @@
+[
+  {
+    "post_id": "mock_recruitment_001",
+    "platform": "nowcoder",
+    "url": "https://mock.local/nowcoder/recruitment/001",
+    "title": "字节跳动 2026 校招推荐算法工程师内推",
+    "author": "hr_mock",
+    "publish_time": "2026-07-01T09:00:00+08:00",
+    "crawl_time": "2026-07-31T10:00:00+08:00",
+    "text": "字节跳动商业化团队开放 2026 校招推荐算法工程师岗位，城市：北京/上海。要求本科及以上，计算机、软件工程、人工智能相关专业优先。技能：Python、机器学习、推荐系统、SQL。职责：负责推荐排序模型优化、用户理解和实验分析。投递方式：官网投递或内推，截止 2026-09-30，内推码 BYTEDANCE2026，官方链接 https://jobs.example.com/bytedance/reco。",
+    "images": [],
+    "metadata": {"query": "algorithm_campus_jobs"}
+  },
+  {
+    "post_id": "mock_interview_ocr_001",
+    "platform": "xiaohongshu",
+    "url": "https://mock.local/xhs/interview/001",
+    "title": "某厂推荐算法面经",
+    "author": "interview_mock",
+    "publish_time": "2026-07-12T21:30:00+08:00",
+    "crawl_time": "2026-07-31T10:01:00+08:00",
+    "text": "最近面完了，简单记录一下。",
+    "images": ["mock://xhs/interview/reco_algorithm_001"],
+    "metadata": {"query": "algorithm_campus_jobs", "image_heavy": true}
+  },
+  {
+    "post_id": "mock_offer_001",
+    "platform": "nowcoder",
+    "url": "https://mock.local/nowcoder/offer/001",
+    "title": "美团后端 offer 求比较",
+    "author": "offer_mock",
+    "publish_time": "2026-07-18T12:00:00+08:00",
+    "crawl_time": "2026-07-31T10:02:00+08:00",
+    "text": "拿到美团到店后端开发 offer，北京，职级 L6，薪资 raw：28×15，2w sign，绩效奖金另算。公积金按全额，餐补每天 30，年假 10 天。offer date 2026-07-15，ddl 2026-08-01，还没接。",
+    "images": [],
+    "metadata": {"query": "backend_offers"}
+  },
+  {
+    "post_id": "mock_work_condition_001",
+    "platform": "xiaohongshu",
+    "url": "https://mock.local/xhs/work-condition/001",
+    "title": "腾讯数据开发工作体验",
+    "author": "work_mock",
+    "publish_time": "2026-07-21T20:00:00+08:00",
+    "crawl_time": "2026-07-31T10:03:00+08:00",
+    "text": "腾讯云数据开发，深圳。一般 10:30 上班，20:30 左右下班，月底项目紧会到 23 点。周末偶尔上线，on-call 轮值。食堂不错，有班车，团队氛围稳定，晋升偏慢。优点是业务成熟、管理规范，缺点是需求节奏波动大。主观 WLB 6.5/10，整体中性偏正。",
+    "images": [],
+    "metadata": {"query": "backend_offers"}
+  }
+]
+

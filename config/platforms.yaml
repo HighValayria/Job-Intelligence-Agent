@@ -1,0 +1,23 @@
+{
+  "platforms": [
+    {
+      "name": "mock",
+      "display_name": "Mock Platform",
+      "collector": "collectors.mock.MockCollector",
+      "enabled": true
+    },
+    {
+      "name": "xiaohongshu",
+      "display_name": "小红书",
+      "collector": null,
+      "enabled": false
+    },
+    {
+      "name": "nowcoder",
+      "display_name": "牛客",
+      "collector": null,
+      "enabled": false
+    }
+  ]
+}
+

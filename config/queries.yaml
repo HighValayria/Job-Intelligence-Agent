@@ -1,0 +1,17 @@
+{
+  "queries": [
+    {
+      "name": "algorithm_campus_jobs",
+      "keywords": ["算法", "推荐算法", "校招", "面经", "offer"],
+      "platforms": ["mock"],
+      "enabled": true
+    },
+    {
+      "name": "backend_offers",
+      "keywords": ["后端", "薪资", "待遇", "offer"],
+      "platforms": ["mock"],
+      "enabled": true
+    }
+  ]
+}
+
