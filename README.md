@@ -81,6 +81,28 @@ python main.py inventory --samples-root real_samples
 python main.py run --source real --llm mock --ocr mock --db-path data/real.sqlite3 --excel-path data/real.xlsx
 ```
 
+Run local HTML snapshot inbox:
+```bash
+python main.py run --source html-snapshot --inbox-dir data/inbox/html --llm mock --ocr mock --db-path data/html.sqlite3 --excel-path data/html.xlsx
+```
+
+Suggested inbox layout:
+```text
+data/inbox/html/
+  nowcoder/
+    post-001.html
+    assets/
+      image-001.png
+  xiaohongshu/
+    note-001.html
+```
+
+`HtmlSnapshotCollector` extracts visible text, title, canonical URL, author,
+publish time, and local image files from saved `.html` / `.htm` snapshots.
+Remote image URLs are recorded in metadata but are not sent to OCR directly.
+`data/inbox/` is git-ignored because snapshots can contain private account or
+job-search context.
+
 Inspect 单篇样本：
 
 ```bash

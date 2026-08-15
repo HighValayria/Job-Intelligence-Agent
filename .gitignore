@@ -13,5 +13,6 @@ data/*.xlsx
 data/pytest-cache/
 data/pytest-tmp/
 data/llm-cache/
+data/inbox/
 real_samples/
 *.egg-info/

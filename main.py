@@ -78,7 +78,11 @@ def main() -> None:
         db_path=args.db_path,
         excel_path=args.excel_path,
         config_dir=args.config_dir,
-        collector=create_collector(args.source, samples_root=args.samples_root),
+        collector=create_collector(
+            args.source,
+            samples_root=args.samples_root,
+            inbox_dir=args.inbox_dir,
+        ),
         ocr_provider=create_ocr_provider(args.ocr),
         llm_provider=create_llm_provider(args.llm, load_project_config(args.config_dir)),
     ).run()
@@ -150,6 +154,7 @@ def _parse_args() -> argparse.Namespace:
         excel_path=Path("data/job_intelligence.xlsx"),
         config_dir=Path("config"),
         samples_root=Path("real_samples"),
+        inbox_dir=Path("data/inbox/html"),
         llm="mock",
         ocr="mock",
     )
@@ -166,11 +171,16 @@ def _configure_utf8_stdio() -> None:
 
 
 def _add_common_run_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument("--source", choices=["mock", "real"], default="mock")
+    parser.add_argument(
+        "--source",
+        choices=["mock", "real", "html", "html-snapshot"],
+        default="mock",
+    )
     parser.add_argument("--db-path", type=Path, default=Path("data/job_intelligence.sqlite3"))
     parser.add_argument("--excel-path", type=Path, default=Path("data/job_intelligence.xlsx"))
     parser.add_argument("--config-dir", type=Path, default=Path("config"))
     parser.add_argument("--samples-root", type=Path, default=Path("real_samples"))
+    parser.add_argument("--inbox-dir", type=Path, default=Path("data/inbox/html"))
     parser.add_argument("--llm", choices=["mock", "real"], default="mock")
     parser.add_argument("--ocr", choices=["mock", "paddle"], default="mock")
 
@@ -181,6 +191,7 @@ def _add_default_run_values(args: argparse.Namespace) -> None:
     args.excel_path = Path("data/job_intelligence.xlsx")
     args.config_dir = Path("config")
     args.samples_root = Path("real_samples")
+    args.inbox_dir = Path("data/inbox/html")
     args.llm = "mock"
     args.ocr = "mock"
 

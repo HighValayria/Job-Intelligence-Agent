@@ -1,5 +1,30 @@
 # Current Status
 
+## HTML Snapshot Inbox
+
+Implemented `HtmlSnapshotCollector` for local saved page snapshots:
+
+```powershell
+.venv\Scripts\python.exe main.py run --source html-snapshot --inbox-dir data\inbox\html --llm mock --ocr mock
+```
+
+Recommended layout:
+
+```text
+data/inbox/html/
+  nowcoder/
+    post-001.html
+    assets/
+      image-001.png
+  xiaohongshu/
+    note-001.html
+```
+
+This unlocks a controlled real-content ingestion path before platform-specific
+browser automation. It extracts visible text, title, URL, author, publish time,
+and local images into `RawPost`; remote image URLs are preserved as metadata but
+are not sent to OCR directly. `data/inbox/` is git-ignored.
+
 日期：2026-08-15
 
 ## 测试状态
@@ -10,7 +35,7 @@
 .venv\Scripts\python.exe -m pytest --basetemp data\pytest-tmp -o cache_dir=data\pytest-cache
 ```
 
-结果：`30 passed`。
+结果：`33 passed`。
 
 ## 真实样本盘点
 
