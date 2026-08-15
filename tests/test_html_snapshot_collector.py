@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from collectors.html_snapshot import HtmlSnapshotCollector, parse_html_snapshot
+from collectors.html_snapshot import (
+    HtmlSnapshotCollector,
+    inventory_html_snapshots,
+    parse_html_snapshot,
+    render_html_snapshot_inventory,
+)
 from scheduler.provider_factory import create_collector
 
 
@@ -72,6 +77,68 @@ def test_html_snapshot_collector_deduplicates_same_canonical_url(tmp_path: Path)
     assert len(posts) == 1
     assert posts[0].platform == "xiaohongshu"
     assert posts[0].post_id.startswith("html-")
+
+
+def test_parse_html_snapshot_allows_missing_url(tmp_path: Path) -> None:
+    inbox = tmp_path / "inbox" / "html" / "nowcoder"
+    inbox.mkdir(parents=True)
+    html_path = inbox / "no-url.html"
+    html_path.write_text(
+        """
+        <html>
+          <head><title>No URL note</title></head>
+          <body>Useful visible text without a canonical URL.</body>
+        </html>
+        """,
+        encoding="utf-8",
+    )
+
+    raw_post = parse_html_snapshot(html_path, root=tmp_path / "inbox" / "html")
+
+    assert raw_post.url == ""
+    assert raw_post.platform == "nowcoder"
+    assert raw_post.post_id.startswith("html-")
+    assert "Useful visible text" in raw_post.text
+
+
+def test_html_snapshot_inventory_reports_warnings_and_previews(tmp_path: Path) -> None:
+    inbox = tmp_path / "inbox" / "html"
+    xhs = inbox / "xiaohongshu"
+    nowcoder = inbox / "nowcoder"
+    xhs.mkdir(parents=True)
+    nowcoder.mkdir(parents=True)
+    image_path = xhs / "screen.png"
+    image_path.write_bytes(b"fake")
+    duplicated = """
+    <html>
+      <head>
+        <meta property="og:url" content="https://www.xiaohongshu.com/explore/abc" />
+        <title>Offer note</title>
+      </head>
+      <body><p>Offer package and timeline.</p><img src="screen.png" /></body>
+    </html>
+    """
+    (xhs / "first.html").write_text(duplicated, encoding="utf-8")
+    (xhs / "second.html").write_text(duplicated, encoding="utf-8")
+    (nowcoder / "missing-url.html").write_text(
+        "<html><head><title>Interview note</title></head><body></body></html>",
+        encoding="utf-8",
+    )
+
+    inventory = inventory_html_snapshots(inbox)
+    rendered_limited = render_html_snapshot_inventory(inventory, limit=2)
+    rendered_all = render_html_snapshot_inventory(inventory, limit=3)
+
+    assert inventory.total_files == 3
+    assert inventory.collected_count == 2
+    assert inventory.duplicate_count == 1
+    assert inventory.by_platform == {"nowcoder": 1, "xiaohongshu": 1}
+    assert inventory.local_image_count == 2
+    assert inventory.empty_text_count == 1
+    assert inventory.missing_url_count == 1
+    assert "duplicate_post_id_in_inbox" in rendered_all
+    assert "missing_url" in rendered_all
+    assert "... 1 more snapshot(s)" in rendered_limited
 
 
 def test_provider_factory_creates_html_snapshot_collector(tmp_path: Path) -> None:

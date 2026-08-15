@@ -8,6 +8,12 @@ Implemented `HtmlSnapshotCollector` for local saved page snapshots:
 .venv\Scripts\python.exe main.py run --source html-snapshot --inbox-dir data\inbox\html --llm mock --ocr mock
 ```
 
+Preview the inbox before OCR/LLM/database writes:
+
+```powershell
+.venv\Scripts\python.exe main.py inbox-inventory --inbox-dir data\inbox\html
+```
+
 Recommended layout:
 
 ```text
@@ -35,7 +41,7 @@ are not sent to OCR directly. `data/inbox/` is git-ignored.
 .venv\Scripts\python.exe -m pytest --basetemp data\pytest-tmp -o cache_dir=data\pytest-cache
 ```
 
-结果：`33 passed`。
+结果：`35 passed`。
 
 ## 真实样本盘点
 

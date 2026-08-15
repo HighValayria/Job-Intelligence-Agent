@@ -103,6 +103,11 @@ Remote image URLs are recorded in metadata but are not sent to OCR directly.
 `data/inbox/` is git-ignored because snapshots can contain private account or
 job-search context.
 
+Preview the inbox before running OCR/LLM/database writes:
+```bash
+python main.py inbox-inventory --inbox-dir data/inbox/html
+```
+
 Inspect 单篇样本：
 
 ```bash

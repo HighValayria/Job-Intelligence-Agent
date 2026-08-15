@@ -5,6 +5,10 @@ import sys
 from pathlib import Path
 
 from annotation import draft_gold, promote_gold, render_draft_summary
+from collectors.html_snapshot import (
+    inventory_html_snapshots,
+    render_html_snapshot_inventory,
+)
 from collectors.real_fixture import RealSampleLoader
 from config_loader import load_project_config
 from evaluation import evaluate_samples, render_report
@@ -31,6 +35,10 @@ def main() -> None:
         inventory = RealSampleLoader(args.samples_root).inventory()
         for key, value in inventory.items():
             print(f"{key}: {value}")
+        return
+    if args.command == "inbox-inventory":
+        inventory = inventory_html_snapshots(args.inbox_dir)
+        print(render_html_snapshot_inventory(inventory, limit=args.limit))
         return
     if args.command == "evaluate":
         config = load_project_config(args.config_dir)
@@ -114,6 +122,14 @@ def _parse_args() -> argparse.Namespace:
         "inventory", help="Inventory real fixture samples"
     )
     inventory_parser.add_argument("--samples-root", default="real_samples")
+
+    inbox_inventory_parser = subparsers.add_parser(
+        "inbox-inventory", help="Inventory local HTML snapshot inbox"
+    )
+    inbox_inventory_parser.add_argument(
+        "--inbox-dir", type=Path, default=Path("data/inbox/html")
+    )
+    inbox_inventory_parser.add_argument("--limit", type=int, default=20)
 
     evaluate_parser = subparsers.add_parser("evaluate", help="Evaluate gold samples")
     evaluate_parser.add_argument("--samples-root", default="real_samples")

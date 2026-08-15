@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Sequence
+from dataclasses import dataclass, field
 from datetime import datetime
 from hashlib import sha256
 from html import unescape
@@ -55,6 +56,156 @@ class HtmlSnapshotCollector(Collector):
         return posts
 
 
+@dataclass(frozen=True)
+class HtmlSnapshotPreview:
+    source_file: str
+    platform: str
+    post_id: str
+    title: str
+    url: str
+    text_chars: int
+    local_image_count: int
+    remote_image_count: int
+    warnings: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class HtmlSnapshotInventory:
+    inbox_dir: Path
+    total_files: int = 0
+    collected_count: int = 0
+    duplicate_count: int = 0
+    by_platform: dict[str, int] = field(default_factory=dict)
+    local_image_count: int = 0
+    remote_image_count: int = 0
+    empty_text_count: int = 0
+    missing_url_count: int = 0
+    previews: list[HtmlSnapshotPreview] = field(default_factory=list)
+
+
+def inventory_html_snapshots(
+    inbox_dir: Path | str = "data/inbox/html",
+    *,
+    default_platform: str = "html_snapshot",
+) -> HtmlSnapshotInventory:
+    root = Path(inbox_dir)
+    if not root.exists():
+        return HtmlSnapshotInventory(inbox_dir=root)
+
+    html_files = _iter_html_files(root)
+    previews: list[HtmlSnapshotPreview] = []
+    by_platform: dict[str, int] = {}
+    seen: set[tuple[str, str]] = set()
+    duplicate_count = 0
+    local_image_count = 0
+    remote_image_count = 0
+    empty_text_count = 0
+    missing_url_count = 0
+
+    for html_path in html_files:
+        raw_post = parse_html_snapshot(
+            html_path,
+            root=root,
+            default_platform=default_platform,
+        )
+        key = (raw_post.platform, raw_post.post_id)
+        warnings: list[str] = []
+        if key in seen:
+            duplicate_count += 1
+            warnings.append("duplicate_post_id_in_inbox")
+        else:
+            seen.add(key)
+            by_platform[raw_post.platform] = by_platform.get(raw_post.platform, 0) + 1
+
+        remote_images = raw_post.metadata.get("remote_images", [])
+        local_count = len(raw_post.images)
+        remote_count = len(remote_images) if isinstance(remote_images, list) else 0
+        text_chars = len(raw_post.text)
+        local_image_count += local_count
+        remote_image_count += remote_count
+        if not raw_post.text.strip():
+            empty_text_count += 1
+            warnings.append("empty_visible_text")
+        if not raw_post.url.strip():
+            missing_url_count += 1
+            warnings.append("missing_url")
+
+        previews.append(
+            HtmlSnapshotPreview(
+                source_file=str(html_path),
+                platform=raw_post.platform,
+                post_id=raw_post.post_id,
+                title=raw_post.title,
+                url=raw_post.url,
+                text_chars=text_chars,
+                local_image_count=local_count,
+                remote_image_count=remote_count,
+                warnings=tuple(warnings),
+            )
+        )
+
+    return HtmlSnapshotInventory(
+        inbox_dir=root,
+        total_files=len(html_files),
+        collected_count=len(seen),
+        duplicate_count=duplicate_count,
+        by_platform=dict(sorted(by_platform.items())),
+        local_image_count=local_image_count,
+        remote_image_count=remote_image_count,
+        empty_text_count=empty_text_count,
+        missing_url_count=missing_url_count,
+        previews=previews,
+    )
+
+
+def render_html_snapshot_inventory(
+    inventory: HtmlSnapshotInventory,
+    *,
+    limit: int = 20,
+) -> str:
+    lines = [
+        f"HTML snapshot inbox: {inventory.inbox_dir}",
+        f"files: {inventory.total_files}",
+        f"collectable_unique: {inventory.collected_count}",
+        f"duplicates: {inventory.duplicate_count}",
+        (
+            "images: "
+            f"local={inventory.local_image_count}, "
+            f"remote={inventory.remote_image_count}"
+        ),
+        (
+            "warnings: "
+            f"empty_text={inventory.empty_text_count}, "
+            f"missing_url={inventory.missing_url_count}"
+        ),
+    ]
+    if inventory.by_platform:
+        lines.append("platforms:")
+        for platform, count in inventory.by_platform.items():
+            lines.append(f"- {platform}: {count}")
+    if inventory.previews:
+        lines.append("previews:")
+        for index, preview in enumerate(inventory.previews[: max(limit, 0)], start=1):
+            url = preview.url or "(missing url)"
+            title = preview.title or "(untitled)"
+            lines.append(f"{index}. [{preview.platform}] {title}")
+            lines.append(
+                "   "
+                f"post_id={preview.post_id}, "
+                f"text_chars={preview.text_chars}, "
+                f"images={preview.local_image_count} local/"
+                f"{preview.remote_image_count} remote"
+            )
+            lines.append(f"   url={url}")
+            lines.append(f"   source={preview.source_file}")
+            if preview.warnings:
+                lines.append(f"   warnings={', '.join(preview.warnings)}")
+        remaining = len(inventory.previews) - max(limit, 0)
+        if remaining > 0:
+            lines.append(f"... {remaining} more snapshot(s)")
+    return "\n".join(lines)
+
+
 def parse_html_snapshot(
     html_path: Path | str,
     *,
@@ -77,14 +228,14 @@ def parse_html_snapshot(
         parser.canonical_url,
         parser.source_url,
         "",
-    )
+    ) or ""
     title = _first_non_empty(
         parser.title,
         metadata.get("job-intel:title"),
         metadata.get("title"),
         metadata.get("og:title"),
         path.stem,
-    )
+    ) or path.stem
     platform = _resolve_platform(
         path=path,
         root=root_path,
