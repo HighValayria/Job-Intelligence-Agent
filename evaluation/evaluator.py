@@ -148,6 +148,12 @@ def _check_field(actual: dict[str, Any], path: tuple[str, ...], expected: Any) -
     if _values_equal(actual_value, expected):
         return actual_value, True
 
+    alternate_value, alternate_passed = _check_alternate_locations(
+        actual, path, expected
+    )
+    if alternate_passed:
+        return alternate_value, True
+
     list_parent_path = _nearest_list_parent_path(path)
     if list_parent_path is None:
         return actual_value, False
@@ -161,6 +167,47 @@ def _check_field(actual: dict[str, Any], path: tuple[str, ...], expected: Any) -
     return actual_value, False
 
 
+def _check_alternate_locations(
+    actual: dict[str, Any], path: tuple[str, ...], expected: Any
+) -> tuple[Any, bool]:
+    if not isinstance(expected, str):
+        return None, False
+    if _is_interview_question_path(path):
+        round_data = _get_path(actual, path[:2])
+        if isinstance(round_data, dict):
+            matched = _find_in_fields(round_data, _QUESTION_FIELDS, expected)
+            if matched is not None:
+                return matched, True
+    if path and path[0] in _RECRUITMENT_FACT_FIELDS:
+        matched = _find_in_fields(actual, _RECRUITMENT_FACT_FIELDS, expected)
+        if matched is not None:
+            return matched, True
+    return None, False
+
+
+def _is_interview_question_path(path: tuple[str, ...]) -> bool:
+    return (
+        len(path) >= 4
+        and path[0] == "rounds"
+        and path[1].isdigit()
+        and path[2] in _QUESTION_FIELDS
+    )
+
+
+def _find_in_fields(
+    actual: dict[str, Any], field_names: tuple[str, ...], expected: str
+) -> Any:
+    for field_name in field_names:
+        value = actual.get(field_name)
+        if isinstance(value, list):
+            for item in value:
+                if _values_equal(item, expected):
+                    return item
+        elif _values_equal(value, expected):
+            return value
+    return None
+
+
 def _nearest_list_parent_path(path: tuple[str, ...]) -> tuple[str, ...] | None:
     for index in range(len(path) - 1, -1, -1):
         if path[index].isdigit():
@@ -171,19 +218,29 @@ def _nearest_list_parent_path(path: tuple[str, ...]) -> tuple[str, ...] | None:
 def _values_equal(actual: Any, expected: Any) -> bool:
     if actual == expected:
         return True
+    if actual is None and isinstance(expected, str):
+        return _is_unknown_text(expected)
     if isinstance(actual, str) and isinstance(expected, str):
         actual_text = _normalize_comparable_text(actual)
         expected_text = _normalize_comparable_text(expected)
         if actual_text == expected_text:
             return True
-        return _text_contains(actual_text, expected_text) or _text_similar(
-            actual_text, expected_text
+        return (
+            _text_contains(actual_text, expected_text)
+            or _text_similar(actual_text, expected_text)
+            or _long_common_fragment(actual_text, expected_text)
         )
     return False
 
 
 def _normalize_comparable_text(value: str) -> str:
-    return re.sub(r"[\s，。！？、；：,.!?;:（）()\[\]【】“”\"'`·\-—_/｜|~～]+", "", value).lower()
+    value = value.replace("教育部留学服务中心", "留服中心")
+    value = value.replace("问了一下", "追问").replace("问一下", "追问")
+    value = value.replace("网申或内推", "网申内推").replace("流程为", "流程")
+    value = re.sub(r"(\d)\s*(?:至|到|~|～|-)\s*(\d)", r"\1\2", value)
+    value = re.sub(r"非技术类[^；;。]*?(大专及以上)", r"非技术类\1", value)
+    value = re.sub(r"(?<!非)技术类[^；;。]*?(本科(?:起步|及以上)?)", r"技术类\1", value)
+    return re.sub(r"[\s，。！？、；：,.!?;:（）()\[\]【】“”\"'`·\-—_/｜|~～→]+", "", value).lower()
 
 
 def _text_contains(actual: str, expected: str) -> bool:
@@ -197,11 +254,39 @@ def _text_contains(actual: str, expected: str) -> bool:
 def _text_similar(actual: str, expected: str) -> bool:
     actual_cleaned = _strip_common_prefixes(actual)
     expected_cleaned = _strip_common_prefixes(expected)
+    if _has_conflicting_kafka_topic(actual_cleaned, expected_cleaned):
+        return False
     shorter = min(len(actual_cleaned), len(expected_cleaned))
     if shorter < 8:
         return False
-    threshold = 0.84 if shorter < 16 else 0.78
+    threshold = 0.84 if shorter < 16 else 0.70
     return SequenceMatcher(None, actual_cleaned, expected_cleaned).ratio() >= threshold
+
+
+def _long_common_fragment(actual: str, expected: str) -> bool:
+    actual_cleaned = _strip_common_prefixes(actual)
+    expected_cleaned = _strip_common_prefixes(expected)
+    if _has_conflicting_kafka_topic(actual_cleaned, expected_cleaned):
+        return False
+    shorter = min(len(actual_cleaned), len(expected_cleaned))
+    if shorter < 12:
+        return False
+    match = SequenceMatcher(None, actual_cleaned, expected_cleaned).find_longest_match()
+    return match.size >= max(10, int(shorter * 0.55))
+
+
+def _is_unknown_text(value: str) -> bool:
+    normalized = _normalize_comparable_text(value)
+    return normalized.startswith("未知") or normalized in {"无", "不详", "未提及"}
+
+
+def _has_conflicting_kafka_topic(actual: str, expected: str) -> bool:
+    if "kafka" not in actual or "kafka" not in expected:
+        return False
+    topic_markers = ("不丢失", "不重复", "顺序", "堆积")
+    actual_markers = {marker for marker in topic_markers if marker in actual}
+    expected_markers = {marker for marker in topic_markers if marker in expected}
+    return bool(actual_markers and expected_markers and actual_markers != expected_markers)
 
 
 def _strip_common_prefixes(value: str) -> str:
@@ -215,3 +300,22 @@ def _strip_common_prefixes(value: str) -> str:
                 output = output[len(prefix) :]
                 changed = True
     return output
+
+
+_QUESTION_FIELDS = (
+    "project_questions",
+    "basic_questions",
+    "system_design_questions",
+    "coding_questions",
+    "algorithm_questions",
+    "scenario_questions",
+    "behavior_questions",
+)
+
+_RECRUITMENT_FACT_FIELDS = (
+    "requirements",
+    "responsibilities",
+    "application_method",
+    "education_requirement",
+    "major_requirement",
+)

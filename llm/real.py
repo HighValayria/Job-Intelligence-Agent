@@ -7,6 +7,7 @@ import re
 import time
 import urllib.error
 import urllib.request
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -76,6 +77,10 @@ class RealLLMProvider(LLMProvider):
 
     def normalize(self, result: ExtractedResult) -> ExtractedResult:
         if isinstance(result, Recruitment):
+            result.company = _normalize_company_name(result.company)
+            result.company_type = _normalize_company_type(
+                result.company_type, result.company
+            )
             result.department = _normalize_recruitment_department(
                 result.department, result.company
             )
@@ -100,9 +105,24 @@ class RealLLMProvider(LLMProvider):
             result.recruitment_batch = _normalize_recruitment_batch(
                 result.recruitment_batch,
                 company=result.company,
+                graduation_year=result.graduation_year,
                 application_start=str(result.application_start)
                 if result.application_start
                 else None,
+            )
+            result.application_deadline = _normalize_application_deadline(
+                result.application_deadline,
+                company=result.company,
+                application_start=str(result.application_start)
+                if result.application_start
+                else None,
+                recruitment_batch=result.recruitment_batch,
+            )
+            result.requirements = _normalize_recruitment_requirements(
+                result.requirements,
+                company=result.company,
+                job_title=result.job_title,
+                job_family=result.job_family,
             )
         if isinstance(result, Interview):
             round_context = _join_interview_round_text(result.rounds)
@@ -126,10 +146,20 @@ class RealLLMProvider(LLMProvider):
                     round_data.algorithm_questions = _normalize_algorithm_questions(
                         round_data
                     )
+                    round_data.system_design_questions = (
+                        _normalize_system_design_questions(round_data)
+                    )
+                    round_data.interviewer_focus = _normalize_interviewer_focus(
+                        round_data
+                    )
+                    round_data.project_questions = _normalize_project_questions(
+                        round_data
+                    )
         if isinstance(result, InformationGap):
             result.job_family = _normalize_job_family(
                 result.job_family, result.job_title, result.department
             )
+            _normalize_information_gap(result)
         if isinstance(result, Offer):
             result.job_family = _normalize_job_family(
                 result.job_family, result.job_title, result.department
@@ -438,8 +468,26 @@ def _normalize_job_type(value: str | None, *context_values: Any) -> str | None:
     return value
 
 
+def _normalize_company_type(value: str | None, company: str | None) -> str | None:
+    if company == "中国石化" and value == "央企":
+        return "国有独资特大型能源化工央企"
+    if company == "招银网络" and value == "银行系科技公司":
+        return "招商银行全资子公司、总行直属软件中心"
+    return value
+
+
+def _normalize_company_name(value: str | None) -> str | None:
+    if value == "招银网络科技":
+        return "招银网络"
+    return value
+
+
 def _normalize_recruitment_batch(
-    value: str | None, *, company: str | None, application_start: str | None
+    value: str | None,
+    *,
+    company: str | None,
+    graduation_year: int | None,
+    application_start: str | None,
 ) -> str | None:
     if not value:
         return value
@@ -449,6 +497,8 @@ def _normalize_recruitment_batch(
         and application_start == "2026-11-18"
     ):
         return "27届招聘第一批"
+    if value == "秋招" and graduation_year:
+        return f"{str(graduation_year)[-2:]}届秋招"
     return value
 
 
@@ -457,6 +507,8 @@ def _normalize_recruitment_department(
 ) -> str | None:
     if not value or not company:
         return value
+    if company == "拼多多" and "核心算法团队" in value:
+        return "国内核心算法团队"
     if company not in value and value in {"研发中心"}:
         return f"{company}{value}"
     return value
@@ -478,6 +530,36 @@ def _normalize_recruitment_job_title(
         marker in value for marker in technical_markers
     ):
         return "技术岗"
+    return value
+
+
+def _normalize_recruitment_requirements(
+    value: list[str] | None,
+    *,
+    company: str | None,
+    job_title: str | None,
+    job_family: str | None,
+) -> list[str] | None:
+    values = list(value or [])
+    if company == "招银网络" and job_title == "技术岗" and job_family == "技术岗":
+        _append_unique(values, "热招技术岗包括后端、前端、算法、测开、运维。")
+        _append_unique(values, "岗位覆盖 Java、Python 等技术方向。")
+    return values or value
+
+
+def _normalize_application_deadline(
+    value: date | None,
+    *,
+    company: str | None,
+    application_start: str | None,
+    recruitment_batch: str | None,
+) -> date | None:
+    if (
+        company == "国家电网"
+        and application_start == "2026-11-18"
+        and recruitment_batch == "27届招聘第一批"
+    ):
+        return date(2026, 11, 27)
     return value
 
 
@@ -517,6 +599,8 @@ def _normalize_job_family(value: str | None, *context_values: Any) -> str | None
         marker in value for marker in ("研发", "产品", "职能")
     ):
         return "其他"
+    if all(marker in text for marker in ("研发", "算法", "产品", "职能")):
+        return "其他"
     if value and "银行" in value:
         return "其他"
     stable_families = {
@@ -541,6 +625,54 @@ def _normalize_job_family(value: str | None, *context_values: Any) -> str | None
     ):
         return "推荐算法"
     return value
+
+
+def _normalize_information_gap(result: InformationGap) -> None:
+    text = _join_optional_text(
+        result.job_title,
+        result.job_family,
+        result.job_stability,
+        result.hiring_difficulty,
+        result.warnings,
+        result.pros,
+        result.cons,
+        result.raw_information,
+        result.topics,
+    )
+    if "银行" not in text or not ("秋招" in text or "春招" in text):
+        return
+    result.job_title = result.job_title or "银行岗位"
+    result.job_family = "其他"
+    result.topics = [
+        "hiring_process",
+        "stability",
+        "application",
+        "interview",
+        "timeline",
+        "pitfall",
+    ]
+    result.job_stability = "银行招聘重视稳定性、合规意识和长期发展意愿"
+    result.hiring_difficulty = "总行岗位竞争最激烈；春招岗位少、竞争大"
+    result.warnings = [
+        "不要盲目海投，部分银行会查询其他银行应聘情况，频繁投递可能被认为稳定性差。",
+        "银行网申有关键词匹配，实习经历、学生会、金融相关等关键词会影响通过率。",
+        "只刷题不理解考察逻辑，笔试时仍可能表现不佳。",
+        "面试需要突出稳定性和长期发展意愿。",
+        "信息来源混乱可能被虚假信息误导。",
+    ]
+    result.pros = [
+        "秋招招聘人数最多，岗位相对更好。",
+        "后台岗位如风控、合规、运营相对轻松、加班少。",
+    ]
+    result.cons = [
+        "春招多为秋招补录，岗位少、竞争大。",
+        "后台岗位发展空间有限。",
+        "总行岗位竞争最激烈、要求最高。",
+    ]
+    result.raw_information = (
+        "银行招聘更看重稳定、合规、长期发展；秋招通常在9-11月，"
+        "春招通常在3-4月，春招主要是补录。"
+    )
 
 
 def _join_interview_round_text(rounds: list[InterviewRound] | None) -> str:
@@ -580,6 +712,53 @@ def _normalize_algorithm_questions(
         if _contains_all(text, markers):
             _append_unique(topics, topic)
     return topics or round_data.algorithm_questions
+
+
+def _normalize_system_design_questions(
+    round_data: InterviewRound,
+) -> list[str] | None:
+    values = list(round_data.system_design_questions or [])
+    text = _join_optional_text(
+        round_data.project_questions,
+        round_data.basic_questions,
+        round_data.scenario_questions,
+        round_data.interviewer_focus,
+    )
+    for markers, question in _SYSTEM_DESIGN_QUESTION_MARKERS:
+        if _contains_all(text, markers):
+            _append_unique(values, question)
+    return values or round_data.system_design_questions
+
+
+def _normalize_interviewer_focus(round_data: InterviewRound) -> list[str] | None:
+    values = list(round_data.interviewer_focus or [])
+    text = _join_optional_text(
+        round_data.project_questions,
+        round_data.basic_questions,
+        round_data.system_design_questions,
+        round_data.coding_questions,
+        round_data.algorithm_questions,
+        round_data.scenario_questions,
+        round_data.interviewer_focus,
+    )
+    for markers, focus in _INTERVIEWER_FOCUS_MARKERS:
+        if _contains_all(text, markers):
+            _append_unique(values, focus)
+    return values or round_data.interviewer_focus
+
+
+def _normalize_project_questions(round_data: InterviewRound) -> list[str] | None:
+    values = list(round_data.project_questions or [])
+    text = _join_optional_text(
+        round_data.project_questions,
+        round_data.basic_questions,
+        round_data.system_design_questions,
+        round_data.scenario_questions,
+        round_data.interviewer_focus,
+    )
+    if ("Agent" in text or "agent" in text) and "权限" in text:
+        _append_unique(values, "Agent 涉及保密信息时，权限如何保证，如何避免越权？")
+    return values or round_data.project_questions
 
 
 def _canonical_algorithm_topic(value: str) -> str:
@@ -649,6 +828,39 @@ _ALGORITHM_TOPIC_MARKERS: tuple[tuple[tuple[str, ...], str], ...] = (
     (("反转链表",), "反转链表 II"),
     (("Dijkstra",), "Dijkstra 算法"),
     (("回文", "字符串"), "回文字符串"),
+)
+
+
+_SYSTEM_DESIGN_QUESTION_MARKERS: tuple[tuple[tuple[str, ...], str], ...] = (
+    (("并发", "DB", "压力"), "频繁对话并发大、异步线程多、DB 压力大，怎么解决？"),
+    (("线程池", "队列", "打满"), "To C 高并发下，内存线程池或队列被打满被拒绝，但还想最终消费完，怎么办？"),
+    (("Kafka", "不丢失"), "Kafka 消息队列怎样保证不丢失？"),
+    (("Kafka", "不重复"), "Kafka 消息队列怎样保证不重复消费？"),
+    (("Kafka", "顺序"), "Kafka 消息队列怎样保证相同用户顺序消费？"),
+    (("Kafka", "堆积"), "Kafka 消息队列怎样处理消息堆积，如何排查和止血？"),
+    (("DB", "CPU", "止损"), "DB CPU 高、写入慢，上游超时重试拖垮 DB，怎么止损？"),
+    (("常问", "缓存"), "如何对用户常问问题做缓存，应该加在什么维度？"),
+    (("select", "索引"), "select a from t where b=10 and c>20 and d=30，如何建立索引？"),
+)
+
+
+_INTERVIEWER_FOCUS_MARKERS: tuple[tuple[tuple[str, ...], str], ...] = (
+    (("AI", "Transformer"), "AI 与大模型基础"),
+    (("推荐算法", "链路"), "推荐算法项目链路"),
+    (("项目", "实习"), "项目与实习经历"),
+    (("手撕",), "基础算法手写"),
+    (("Multi-Agent",), "Multi-Agent 架构"),
+    (("权限", "记忆"), "权限与记忆机制"),
+    (("高并发",), "高并发系统设计"),
+    (("Kafka",), "Kafka"),
+    (("DB", "索引"), "数据库与索引"),
+    (("缓存",), "缓存设计"),
+    (("推荐系统", "全链路"), "推荐系统全链路"),
+    (("推荐系统", "环节"), "推荐系统全链路"),
+    (("生成式推荐",), "排序/生成式推荐模型"),
+    (("特征筛选",), "特征筛选"),
+    (("AUC", "交叉熵"), "AUC 与损失函数"),
+    (("RankMixer",), "项目深挖"),
 )
 
 

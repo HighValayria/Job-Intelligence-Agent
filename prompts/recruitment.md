@@ -12,6 +12,8 @@ post_id, confidence, needs_review, field_evidence, company, company_type, depart
 - job_family 使用规范岗位族；如果一篇帖子同时覆盖研发、算法、产品、职能等多个大方向，填“其他”。
 - 如果只出现后端/前端/算法/测开/运维等多个技术方向且没有单一细分岗位，job_title 和 job_family 填“技术岗”。
 - 如果业务或技能包含搜广推、搜索推荐、商业化广告、召回、粗排、精排、重排等推荐系统语境，job_family 填“推荐算法”。
+- company_type 尽量保留原文的完整公司背景，不要压缩成“央企”“互联网”“银行系科技公司”等泛标签。
+- “热招岗位”“岗位方向”“技术方向”“毕业时间”“投递限制”等放入 requirements；不要因为没有硬性 JD 就省略。
 - 日期字段使用 YYYY-MM-DD；无法确定完整日期时返回 null。
 - 帖子链接放 source_url，官方投递链接放 official_url。
 - 内推码只放 referral_code。

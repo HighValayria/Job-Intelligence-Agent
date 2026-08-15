@@ -110,11 +110,70 @@ def test_evaluation_matches_list_items_without_index_lockstep() -> None:
         "问平时怎么使用AI的，讲讲遇到的问题和坑以及怎么解决",
         "平时怎么使用 AI，讲讲遇到的问题、坑以及如何解决。",
     )
+    assert _values_equal(
+        "负责拼多多国内核心算法团队相关业务，覆盖关键词搜索、图像搜索、首页推荐、个人中心、店铺、百亿补贴、秒杀等活动推荐。",
+        "业务场景包括关键词搜索、图像搜索、首页推荐、个人中心、店铺、百亿补贴、秒杀等活动推荐。",
+    )
+    assert _values_equal(None, "未知；作者表示后续会发二面面经。")
+    assert _values_equal(
+        "海外考生仅限初次就业、具备教育部留学服务中心派遣资格的归国留学生。",
+        "海外考生仅限初次就业、具备留服中心派遣资格的归国留学生。",
+    )
+    assert _values_equal(
+        "非技术类运营、产品、销售、职能等大专及以上；技术类开发、算法、测试等本科起步。",
+        "非技术类大专及以上；技术类本科起步",
+    )
+    assert _values_equal(
+        "网申/内推；流程：网申/内推 → 笔试 → 2~3轮专业面试 → HR沟通 → Offer。",
+        "网申或内推；流程为网申/内推、笔试、2~3轮专业面试、HR沟通、Offer。",
+    )
     assert not _values_equal("AI", "BI")
+    assert not _values_equal(
+        "Kafka 消息队列怎样保证不丢失？",
+        "Kafka 消息队列怎样保证不重复消费？",
+    )
     assert not _values_equal(
         "总行岗位竞争最激烈、要求最高；分行岗位压力较小",
         "春招岗位少、竞争大。",
     )
+
+
+def test_evaluation_matches_interview_questions_across_question_buckets() -> None:
+    actual = {
+        "rounds": [
+            {
+                "basic_questions": [
+                    "除了Tiger和VAE相关的，还了解其他生成式推荐算法吗？"
+                ],
+                "project_questions": [],
+            }
+        ]
+    }
+
+    matched_value, passed = _check_field(
+        actual,
+        ("rounds", "0", "project_questions", "0"),
+        "除了 Tiger 和 VAE 相关的，还了解其他生成式推荐算法吗？",
+    )
+
+    assert passed is True
+    assert matched_value == "除了Tiger和VAE相关的，还了解其他生成式推荐算法吗？"
+
+
+def test_evaluation_matches_recruitment_facts_across_adjacent_fields() -> None:
+    actual = {
+        "requirements": ["不限专业"],
+        "application_method": "网申或内推；最多可投递1个志愿。",
+    }
+
+    matched_value, passed = _check_field(
+        actual,
+        ("requirements", "2"),
+        "最多可投递 1 个志愿。",
+    )
+
+    assert passed is True
+    assert matched_value == "网申或内推；最多可投递1个志愿。"
 
 
 def test_inspect_sample_outputs_intermediate_sections(tmp_path: Path) -> None:

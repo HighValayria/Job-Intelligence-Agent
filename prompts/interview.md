@@ -16,6 +16,8 @@ round_number, round_type, duration, self_intro, project_questions, basic_questio
 - recruitment_type 保留“27届校招”“秋招提前批”等原文批次信息，不要只写“校园招聘”。
 - 保留每轮面试的原始问题表达，不要把不同轮次的问题混在一起。
 - “手撕”“代码题”“Coding”“LeetCode”放入 coding_questions。
+- 高并发、权限、架构、记忆、工具、缓存、Kafka、DB、SQL、索引、消息队列等系统设计/工程架构题放入 system_design_questions，并逐题保留，不要只总结到 interviewer_focus。
+- interviewer_focus 只放主题标签；不要用一整句摘要代替多个标签。
 - 算法/模型/指标名可以放入 algorithm_questions；完整问句放入 basic_questions、project_questions 或 system_design_questions。
 - 未知字段返回 null 或省略。
 - confidence 使用 0 到 1 的数字，needs_review 使用 boolean。

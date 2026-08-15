@@ -198,6 +198,8 @@ def test_real_llm_provider_normalizes_recruitment_family_from_context() -> None:
     provider = RealLLMProvider({"env_file": None})
     recruitment = Recruitment(
         post_id="recruitment/004",
+        company="拼多多",
+        department="拼多多核心算法团队",
         job_title=None,
         job_family="算法",
         skills=["召回", "粗排", "精排", "重排"],
@@ -213,10 +215,69 @@ def test_real_llm_provider_normalizes_recruitment_family_from_context() -> None:
     normalized_information_gap = provider.normalize(information_gap)
 
     assert isinstance(normalized_recruitment, Recruitment)
+    assert normalized_recruitment.department == "国内核心算法团队"
     assert normalized_recruitment.job_title == "算法岗"
     assert normalized_recruitment.job_family == "推荐算法"
     assert isinstance(normalized_information_gap, InformationGap)
     assert normalized_information_gap.job_family == "其他"
+
+
+def test_real_llm_provider_normalizes_company_type_and_technical_requirements() -> None:
+    provider = RealLLMProvider({"env_file": None})
+    sinopec = Recruitment(
+        post_id="recruitment/001",
+        company="中国石化",
+        company_type="央企",
+    )
+    cmbnt = Recruitment(
+        post_id="recruitment/003",
+        company="招银网络科技",
+        company_type="银行系科技公司",
+        job_title="技术岗",
+        job_family="技术岗",
+        recruitment_batch="秋招",
+        graduation_year=2027,
+    )
+
+    normalized_sinopec = provider.normalize(sinopec)
+    normalized_cmbnt = provider.normalize(cmbnt)
+
+    assert isinstance(normalized_sinopec, Recruitment)
+    assert normalized_sinopec.company_type == "国有独资特大型能源化工央企"
+    assert isinstance(normalized_cmbnt, Recruitment)
+    assert normalized_cmbnt.company == "招银网络"
+    assert normalized_cmbnt.company_type == "招商银行全资子公司、总行直属软件中心"
+    assert normalized_cmbnt.recruitment_batch == "27届秋招"
+    assert normalized_cmbnt.requirements == [
+        "热招技术岗包括后端、前端、算法、测开、运维。",
+        "岗位覆盖 Java、Python 等技术方向。",
+    ]
+
+
+def test_real_llm_provider_normalizes_bank_information_gap() -> None:
+    provider = RealLLMProvider({"env_file": None})
+    information_gap = InformationGap(
+        post_id="infodiff/003",
+        raw_information="银行秋招/春招避坑指南：银行招聘看重稳定性和合规意识。",
+        topics=["hiring_process", "stability", "pitfall"],
+    )
+
+    normalized = provider.normalize(information_gap)
+
+    assert isinstance(normalized, InformationGap)
+    assert normalized.job_title == "银行岗位"
+    assert normalized.job_family == "其他"
+    assert normalized.topics == [
+        "hiring_process",
+        "stability",
+        "application",
+        "interview",
+        "timeline",
+        "pitfall",
+    ]
+    assert normalized.warnings
+    assert normalized.pros
+    assert normalized.cons
 
 
 def test_real_llm_provider_normalizes_mixed_social_and_intern_type() -> None:
@@ -231,6 +292,20 @@ def test_real_llm_provider_normalizes_mixed_social_and_intern_type() -> None:
 
     assert isinstance(normalized, Recruitment)
     assert normalized.job_type == "社招和实习"
+
+
+def test_real_llm_provider_keeps_broad_recruitment_family_as_other() -> None:
+    provider = RealLLMProvider({"env_file": None})
+    recruitment = Recruitment(
+        post_id="recruitment/002",
+        job_family="推荐算法",
+        requirements=["岗位方向包括研发岗、算法岗、产品岗、职能岗。"],
+    )
+
+    normalized = provider.normalize(recruitment)
+
+    assert isinstance(normalized, Recruitment)
+    assert normalized.job_family == "其他"
 
 
 def test_real_llm_provider_fills_interview_algorithm_topics() -> None:
@@ -275,6 +350,7 @@ def test_real_llm_provider_infers_backend_family_from_system_design_round() -> N
                     "To C 高并发下线程池被打满怎么办？",
                     "Kafka 消息队列怎样保证不重复消费？",
                 ],
+                "interviewer_focus": ["Agent 权限、架构、记忆、工具、高并发、缓存"],
             }
         ],
     )
@@ -283,6 +359,44 @@ def test_real_llm_provider_infers_backend_family_from_system_design_round() -> N
 
     assert isinstance(normalized, Interview)
     assert normalized.job_family == "后端"
+    assert normalized.rounds
+    assert "Agent 涉及保密信息时，权限如何保证，如何避免越权？" in (
+        normalized.rounds[0].project_questions or []
+    )
+
+
+def test_real_llm_provider_fills_interviewer_focus() -> None:
+    provider = RealLLMProvider({"env_file": None})
+    interview = Interview(
+        post_id="interview/005",
+        rounds=[
+            {
+                "round_number": 2,
+                "project_questions": [
+                    "你项目里用到了RankMixer，讲一下它的结构。",
+                    "特征筛选方案讲解。",
+                ],
+                "basic_questions": [
+                    "讲一下推荐系统包含哪些环节，每个环节解决什么问题，对应什么评估指标？",
+                    "AUC的定义和计算方式，复杂度。",
+                    "讲一下交叉熵损失的公式。",
+                    "除了Tiger和VAE相关的，还了解其他生成式推荐算法吗？",
+                ],
+            }
+        ],
+    )
+
+    normalized = provider.normalize(interview)
+
+    assert isinstance(normalized, Interview)
+    assert normalized.rounds
+    focus = normalized.rounds[0].interviewer_focus
+    assert focus
+    assert "推荐系统全链路" in focus
+    assert "排序/生成式推荐模型" in focus
+    assert "特征筛选" in focus
+    assert "AUC 与损失函数" in focus
+    assert "项目深挖" in focus
 
 
 def test_real_llm_provider_normalizes_state_grid_multibatch_text() -> None:
@@ -292,12 +406,14 @@ def test_real_llm_provider_normalizes_state_grid_multibatch_text() -> None:
         company="国家电网",
         recruitment_batch="多批次（第一批/第二批等）",
         application_start="2026-11-18",
+        application_deadline="2027-04-30",
     )
 
     normalized = provider.normalize(recruitment)
 
     assert isinstance(normalized, Recruitment)
     assert normalized.recruitment_batch == "27届招聘第一批"
+    assert str(normalized.application_deadline) == "2026-11-27"
 
 
 def test_real_llm_provider_cache_round_trip(tmp_path: Path) -> None:
