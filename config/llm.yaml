@@ -12,6 +12,7 @@
     "timeout_seconds": 60,
     "max_retries": 2,
     "reasoning_effort": "low",
+    "cache_dir": "data/llm-cache",
     "prompt_dir": "prompts"
   }
 }

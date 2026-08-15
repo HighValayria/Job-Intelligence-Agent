@@ -12,5 +12,6 @@ data/*.sqlite3
 data/*.xlsx
 data/pytest-cache/
 data/pytest-tmp/
+data/llm-cache/
 real_samples/
 *.egg-info/

@@ -13,6 +13,23 @@ class ContentBuilder:
     def build(self, raw_post: RawPost) -> UnifiedContent:
         text = clean_text(raw_post.text)
         segments = [
+            ContentSegment(
+                source="metadata",
+                text=clean_text(
+                    "\n".join(
+                        [
+                            f"post_id: {raw_post.post_id}",
+                            f"platform: {raw_post.platform}",
+                            f"source_url: {raw_post.url}",
+                        ]
+                    )
+                ),
+                metadata={
+                    "post_id": raw_post.post_id,
+                    "platform": raw_post.platform,
+                    "source_url": raw_post.url,
+                },
+            ),
             ContentSegment(source="title", text=raw_post.title, metadata={}),
         ]
         if text:

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+import re
 
 from collectors.real_fixture import RealSampleLoader, sample_to_raw_post
 from llm.base import LLMProvider
@@ -72,7 +73,7 @@ def evaluate_samples(
                     field=".".join(field_path),
                     expected=expected,
                     actual=actual_value,
-                    passed=actual_value == expected,
+                    passed=_values_equal(actual_value, expected),
                 )
             )
     return report
@@ -139,3 +140,15 @@ def _get_path(value: Any, path: tuple[str, ...]) -> Any:
         else:
             return None
     return current
+
+
+def _values_equal(actual: Any, expected: Any) -> bool:
+    if actual == expected:
+        return True
+    if isinstance(actual, str) and isinstance(expected, str):
+        return _normalize_comparable_text(actual) == _normalize_comparable_text(expected)
+    return False
+
+
+def _normalize_comparable_text(value: str) -> str:
+    return re.sub(r"[\s，。！？、；：,.!?;:（）()\[\]【】“”\"'`·\-—_/]+", "", value).lower()

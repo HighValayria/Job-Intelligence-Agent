@@ -136,6 +136,7 @@ python main.py llm-status
 ```
 
 输出里的 `api_key_configured: True` 表示 key 已被读取。Kimi K3 默认使用 `reasoning_effort: low`，减少抽取任务的延迟和成本。
+真实 LLM 响应默认缓存到 `data/llm-cache/`，重复评估同一 prompt 和样本时会复用结果；修改 prompt、模型或输入文本后会自动重新请求。
 
 默认生成：
 

@@ -10,7 +10,7 @@
 C:\Users\33967\AppData\Local\Programs\Python\Python312\python.exe -m pytest --basetemp data\pytest-tmp -o cache_dir=data\pytest-cache
 ```
 
-结果：`14 passed`。
+结果：`17 passed`。
 
 ## 真实样本盘点
 
@@ -54,6 +54,8 @@ Offer 真实样本为 0 是当前阶段允许状态；Mock Offer 和 Offer Schem
 - 当前真实样本已有 8 个审核通过的 gold，可用于初步回归；样本量仍需继续扩充。
 - 可以继续运行 `draft-gold` 生成 `gold_draft.json`，审核后再 `promote-gold`。
 - Moonshot/Kimi K3 `.env` 配置已接入；`llm-status` 可本地检查配置是否加载，不会发送样本内容。
+- 真实 LLM 回归已跑通：Kimi K3 可完成分类和抽取，已补 schema 输出修复、metadata/source_url 输入、评估文本归一化和 `data/llm-cache/` 响应缓存。
+- 当前 12 个 gold 样本在 mock OCR 下的真实 LLM 字段级评估为 `118 passed / 155 failed`；剩余失败主要集中在字段粒度、列表对齐、信息差摘要和含图样本缺少真实 OCR。
 - PaddleOCRProvider 已在项目 `.venv` 中用 PaddleOCR 3.7.0 跑通单图 inspect。
 - 第一次运行 PaddleOCR 会下载官方模型到 `C:\Users\33967\.paddlex\official_models\`。
 - 真实小红书/牛客自动采集仍属于后续阶段，不在本阶段实现。
