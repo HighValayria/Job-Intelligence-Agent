@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 import re
@@ -175,7 +176,9 @@ def _values_equal(actual: Any, expected: Any) -> bool:
         expected_text = _normalize_comparable_text(expected)
         if actual_text == expected_text:
             return True
-        return _text_contains(actual_text, expected_text)
+        return _text_contains(actual_text, expected_text) or _text_similar(
+            actual_text, expected_text
+        )
     return False
 
 
@@ -189,6 +192,16 @@ def _text_contains(actual: str, expected: str) -> bool:
     if len(actual_cleaned) < 4 or len(expected_cleaned) < 4:
         return False
     return expected_cleaned in actual_cleaned or actual_cleaned in expected_cleaned
+
+
+def _text_similar(actual: str, expected: str) -> bool:
+    actual_cleaned = _strip_common_prefixes(actual)
+    expected_cleaned = _strip_common_prefixes(expected)
+    shorter = min(len(actual_cleaned), len(expected_cleaned))
+    if shorter < 8:
+        return False
+    threshold = 0.84 if shorter < 16 else 0.78
+    return SequenceMatcher(None, actual_cleaned, expected_cleaned).ratio() >= threshold
 
 
 def _strip_common_prefixes(value: str) -> str:

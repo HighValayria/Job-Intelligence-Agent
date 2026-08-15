@@ -102,7 +102,19 @@ def test_evaluation_matches_list_items_without_index_lockstep() -> None:
     assert passed is True
     assert matched_value == "手撕：Merge K sorted lists"
     assert _values_equal("Java/Python backend roles", "backend roles")
+    assert _values_equal(
+        "毕业时间在2026年9月1日至2027年8月31日",
+        "毕业时间为 2026年9月1日 至 2027年8月31日。",
+    )
+    assert _values_equal(
+        "问平时怎么使用AI的，讲讲遇到的问题和坑以及怎么解决",
+        "平时怎么使用 AI，讲讲遇到的问题、坑以及如何解决。",
+    )
     assert not _values_equal("AI", "BI")
+    assert not _values_equal(
+        "总行岗位竞争最激烈、要求最高；分行岗位压力较小",
+        "春招岗位少、竞争大。",
+    )
 
 
 def test_inspect_sample_outputs_intermediate_sections(tmp_path: Path) -> None:

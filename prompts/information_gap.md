@@ -5,7 +5,9 @@ post_id, confidence, needs_review, field_evidence, company, department, job_titl
 
 规则：
 - 不要输出 summary、source_title、notes 等 schema 外字段。
+- 输入会包含 `[metadata]`、`[title]`、`[text]`、`[image_*_ocr]` 等段落；这些段落都属于原文，可用标题和 OCR 文本抽取岗位、公司和信息点。
 - 不要根据“比较卷”等模糊说法编造具体下班时间。
+- 银行、央国企等通用行业/岗位避坑帖若没有单一技术岗位，job_family 填“其他”。
 - topics 使用短标签，如 salary、wlb、hiring_process、stability、pitfall、benefit。
 - pros、cons、warnings 使用原文可支撑的短句。
 - raw_information 保留最核心的原文信息摘要。

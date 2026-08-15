@@ -5,9 +5,13 @@ post_id, confidence, needs_review, field_evidence, company, company_type, depart
 
 规则：
 - 不要输出 source_title、summary、notes、benefits、process 等 schema 外字段。
+- 输入会包含 `[metadata]`、`[title]`、`[text]`、`[image_*_ocr]` 等段落；这些段落都属于原文，可用标题和 OCR 文本抽取字段。
 - 未知字段返回 null 或省略。
 - job_type 使用短标签：校招、社招、实习、社招和实习；不要输出“全职”或“校园招聘”。
+- 如果原文明确写“社招和实习岗位都有”，job_type 填“社招和实习”。
 - job_family 使用规范岗位族；如果一篇帖子同时覆盖研发、算法、产品、职能等多个大方向，填“其他”。
+- 如果只出现后端/前端/算法/测开/运维等多个技术方向且没有单一细分岗位，job_title 和 job_family 填“技术岗”。
+- 如果业务或技能包含搜广推、搜索推荐、商业化广告、召回、粗排、精排、重排等推荐系统语境，job_family 填“推荐算法”。
 - 日期字段使用 YYYY-MM-DD；无法确定完整日期时返回 null。
 - 帖子链接放 source_url，官方投递链接放 official_url。
 - 内推码只放 referral_code。

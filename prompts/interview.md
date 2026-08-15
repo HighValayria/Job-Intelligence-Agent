@@ -8,9 +8,11 @@ round_number, round_type, duration, self_intro, project_questions, basic_questio
 
 规则：
 - 不要输出 position、interview_type、source_title、feedback、notes、questions、round_name 等 schema 外字段。
+- 输入会包含 `[metadata]`、`[title]`、`[text]`、`[image_*_ocr]` 等段落；这些段落都属于原文，可用标题和 OCR 文本抽取公司、岗位和轮次。
 - 原文没有明确轮次时，不要强行推断 round_number。
 - round_type 优先使用原文的“一面”“二面”“三面”“HR面”等短标签，不要改写成“技术面试”。
 - job_family 使用规范岗位族；搜广推、推荐、广告推荐等都归为“推荐算法”。
+- 如果标题明确写“某公司推荐算法一面/二面/三面面经”，可以据此抽取 company、job_title、job_family 和 round_type。
 - recruitment_type 保留“27届校招”“秋招提前批”等原文批次信息，不要只写“校园招聘”。
 - 保留每轮面试的原始问题表达，不要把不同轮次的问题混在一起。
 - “手撕”“代码题”“Coding”“LeetCode”放入 coding_questions。

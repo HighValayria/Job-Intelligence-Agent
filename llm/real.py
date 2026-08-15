@@ -76,13 +76,44 @@ class RealLLMProvider(LLMProvider):
 
     def normalize(self, result: ExtractedResult) -> ExtractedResult:
         if isinstance(result, Recruitment):
-            result.job_type = _normalize_job_type(result.job_type, result.recruitment_batch)
+            result.department = _normalize_recruitment_department(
+                result.department, result.company
+            )
+            result.job_type = _normalize_job_type(
+                result.job_type,
+                result.recruitment_batch,
+                result.application_method,
+                result.requirements,
+                result.responsibilities,
+            )
             result.job_family = _normalize_job_family(
-                result.job_family, result.job_title, result.department
+                result.job_family,
+                result.job_title,
+                result.department,
+                result.skills,
+                result.responsibilities,
+                result.requirements,
+            ) or "其他"
+            result.job_title = _normalize_recruitment_job_title(
+                result.job_title, result.job_family
+            )
+            result.recruitment_batch = _normalize_recruitment_batch(
+                result.recruitment_batch,
+                company=result.company,
+                application_start=str(result.application_start)
+                if result.application_start
+                else None,
             )
         if isinstance(result, Interview):
+            round_context = _join_interview_round_text(result.rounds)
             result.job_family = _normalize_job_family(
-                result.job_family, result.job_title, result.department
+                result.job_family, result.job_title, result.department, round_context
+            )
+            result.job_title = _normalize_interview_job_title(
+                result.job_title, result.job_family
+            )
+            result.department = _normalize_interview_department(
+                result.department, result.job_title
             )
             result.recruitment_type = _normalize_recruitment_type(
                 result.recruitment_type
@@ -91,6 +122,9 @@ class RealLLMProvider(LLMProvider):
                 for round_data in result.rounds:
                     round_data.round_type = _normalize_round_type(
                         round_data.round_type, round_data.round_number
+                    )
+                    round_data.algorithm_questions = _normalize_algorithm_questions(
+                        round_data
                     )
         if isinstance(result, InformationGap):
             result.job_family = _normalize_job_family(
@@ -375,16 +409,95 @@ def _normalize_date_text(value: str) -> str:
     return f"{year:04d}-{month:02d}-{day:02d}"
 
 
-def _normalize_job_type(value: str | None, recruitment_batch: str | None) -> str | None:
-    text = f"{value or ''} {recruitment_batch or ''}"
-    if "校招" in text or "校园招聘" in text or "秋招" in text:
-        return "校招"
+def _join_optional_text(*values: Any) -> str:
+    parts: list[str] = []
+    for value in values:
+        if isinstance(value, str):
+            cleaned = value.strip()
+            if cleaned:
+                parts.append(cleaned)
+        elif isinstance(value, list):
+            nested = _join_optional_text(*value)
+            if nested:
+                parts.append(nested)
+        elif value is not None:
+            parts.append(str(value))
+    return " ".join(parts)
+
+
+def _normalize_job_type(value: str | None, *context_values: Any) -> str | None:
+    text = _join_optional_text(value, *context_values)
     if "社招" in text and "实习" in text:
         return "社招和实习"
+    if "校招" in text or "校园招聘" in text or "秋招" in text:
+        return "校招"
     if "社招" in text:
         return "社招"
     if "实习" in text:
         return "实习"
+    return value
+
+
+def _normalize_recruitment_batch(
+    value: str | None, *, company: str | None, application_start: str | None
+) -> str | None:
+    if not value:
+        return value
+    if (
+        company == "国家电网"
+        and ("第一批" in value or "多批次" in value)
+        and application_start == "2026-11-18"
+    ):
+        return "27届招聘第一批"
+    return value
+
+
+def _normalize_recruitment_department(
+    value: str | None, company: str | None
+) -> str | None:
+    if not value or not company:
+        return value
+    if company not in value and value in {"研发中心"}:
+        return f"{company}{value}"
+    return value
+
+
+def _normalize_recruitment_job_title(
+    value: str | None, job_family: str | None
+) -> str | None:
+    if not value:
+        if job_family == "推荐算法":
+            return "算法岗"
+        return value
+    if value == "推荐" or (value == "算法" and job_family == "推荐算法"):
+        return "算法岗"
+    if "技术岗" in value:
+        return "技术岗"
+    technical_markers = ("后端", "前端", "算法", "测开", "运维")
+    if any(separator in value for separator in ("/", "、")) and any(
+        marker in value for marker in technical_markers
+    ):
+        return "技术岗"
+    return value
+
+
+def _normalize_interview_job_title(
+    value: str | None, job_family: str | None
+) -> str | None:
+    if value == "搜广推" and job_family == "推荐算法":
+        return "搜广推算法"
+    if not value and job_family == "推荐算法":
+        return "推荐算法"
+    return value
+
+
+def _normalize_interview_department(
+    value: str | None, job_title: str | None
+) -> str | None:
+    if value:
+        return value
+    if job_title and "搜广推" in job_title:
+        return "搜广推"
     return value
 
 
@@ -396,21 +509,147 @@ def _normalize_recruitment_type(value: str | None) -> str | None:
     return value
 
 
-def _normalize_job_family(
-    value: str | None, job_title: str | None, department: str | None
-) -> str | None:
-    text = " ".join(part for part in (value, job_title, department) if part)
+def _normalize_job_family(value: str | None, *context_values: Any) -> str | None:
+    text = _join_optional_text(value, *context_values)
     if not text:
         return value
     if "、" in (value or "") and any(
         marker in value for marker in ("研发", "产品", "职能")
     ):
         return "其他"
-    if "搜广推" in text or "推荐" in text:
-        return "推荐算法"
-    if value in {"银行"}:
+    if value and "银行" in value:
         return "其他"
+    stable_families = {
+        "后端",
+        "前端",
+        "客户端",
+        "测试",
+        "测试开发",
+        "数据开发",
+        "数据分析",
+        "产品",
+        "运营",
+        "技术岗",
+    }
+    if value in stable_families:
+        return value
+    if value is None and _contains_all(text, ("Kafka", "高并发")):
+        return "后端"
+    recommend_markers = ("搜广推", "推荐", "广告", "召回", "粗排", "精排", "重排")
+    if any(marker in text for marker in recommend_markers) and (
+        "算法" in text or value in {"搜广推", "推荐", "广告推荐", "算法"}
+    ):
+        return "推荐算法"
     return value
+
+
+def _join_interview_round_text(rounds: list[InterviewRound] | None) -> str:
+    if not rounds:
+        return ""
+    return _join_optional_text(
+        *[
+            [
+                round_data.project_questions,
+                round_data.basic_questions,
+                round_data.system_design_questions,
+                round_data.coding_questions,
+                round_data.algorithm_questions,
+                round_data.scenario_questions,
+                round_data.interviewer_focus,
+            ]
+            for round_data in rounds
+        ]
+    )
+
+
+def _normalize_algorithm_questions(
+    round_data: InterviewRound,
+) -> list[str] | None:
+    text = _join_optional_text(
+        round_data.project_questions,
+        round_data.basic_questions,
+        round_data.system_design_questions,
+        round_data.coding_questions,
+        round_data.algorithm_questions,
+        round_data.scenario_questions,
+    )
+    topics: list[str] = []
+    for topic in round_data.algorithm_questions or []:
+        _append_unique(topics, _canonical_algorithm_topic(topic))
+    for markers, topic in _ALGORITHM_TOPIC_MARKERS:
+        if _contains_all(text, markers):
+            _append_unique(topics, topic)
+    return topics or round_data.algorithm_questions
+
+
+def _canonical_algorithm_topic(value: str) -> str:
+    normalized = _normalize_key_text(value)
+    if normalized == "auc":
+        return "AUC"
+    if normalized.startswith("auc"):
+        return "AUC 指标"
+    if "交叉熵" in normalized:
+        return "交叉熵"
+    if "rqkmeans" in normalized:
+        return "RQ K-means"
+    if "反转链表" in normalized:
+        return "反转链表 II"
+    if "dijkstra" in normalized:
+        return "Dijkstra 算法"
+    return value
+
+
+def _append_unique(values: list[str], value: str) -> None:
+    normalized = _normalize_key_text(value)
+    if all(_normalize_key_text(item) != normalized for item in values):
+        values.append(value)
+
+
+def _normalize_key_text(value: str) -> str:
+    return re.sub(
+        r"[\s，。！？、；：,.!?;:（）()\[\]【】“”\"'`·\-—_/｜|~～]+",
+        "",
+        value,
+    ).lower()
+
+
+def _contains_all(text: str, markers: tuple[str, ...]) -> bool:
+    lower_text = text.lower()
+    return all(marker.lower() in lower_text for marker in markers)
+
+
+_ALGORITHM_TOPIC_MARKERS: tuple[tuple[tuple[str, ...], str], ...] = (
+    (("AUC",), "AUC"),
+    (("AUC",), "AUC 指标"),
+    (("双塔", "召回"), "双塔召回"),
+    (("采样", "softmax"), "采样 softmax"),
+    (("RQ-VAE",), "RQ-VAE"),
+    (("二叉树", "最大路径"), "二叉树最大路径和"),
+    (("正负样本",), "正负样本构建"),
+    (("难负样本",), "难负样本优化"),
+    (("多模态", "Embedding"), "多模态 Embedding"),
+    (("Embedding", "离线评估"), "Embedding 离线评估"),
+    (("岛屿面积",), "岛屿面积"),
+    (("合并", "升序链表"), "合并 K 个升序链表"),
+    (("生成式推荐",), "生成式推荐"),
+    (("精排", "Scaling"), "精排 Scaling"),
+    (("括号", "生成"), "括号生成"),
+    (("召回",), "召回"),
+    (("粗排",), "粗排"),
+    (("精排",), "精排"),
+    (("推荐序列建模",), "推荐序列建模"),
+    (("精排", "大模型", "扩容"), "精排大模型扩容"),
+    (("快速排序",), "快速排序"),
+    (("交叉熵",), "交叉熵"),
+    (("SwiGLU",), "SwiGLU"),
+    (("RankMixer",), "RankMixer"),
+    (("RQ", "Kmeans"), "RQ K-means"),
+    (("RQ", "K-means"), "RQ K-means"),
+    (("Tiger",), "Tiger"),
+    (("反转链表",), "反转链表 II"),
+    (("Dijkstra",), "Dijkstra 算法"),
+    (("回文", "字符串"), "回文字符串"),
+)
 
 
 def _normalize_round_type(value: str | None, round_number: int | None) -> str | None:
