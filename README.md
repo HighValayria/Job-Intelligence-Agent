@@ -105,14 +105,37 @@ python main.py draft-gold --samples-root real_samples --llm real --ocr paddle
 python main.py promote-gold --samples-root real_samples
 ```
 
-真实 LLM 使用环境变量，不要把 Secret 写入代码：
+真实 LLM 默认会读取项目根目录的 `.env`，不要把 Secret 写入代码或提交到 Git。Moonshot/Kimi 配置示例：
+
+```dotenv
+JOB_INTEL_LLM_API_URL=https://api.moonshot.cn/v1/chat/completions
+JOB_INTEL_LLM_API_KEY=你的 Moonshot API Key
+JOB_INTEL_LLM_MODEL=kimi-k3
+```
+
+项目也兼容 Moonshot 风格变量名：
+
+```dotenv
+MOONSHOT_API_KEY=你的 Moonshot API Key
+MOONSHOT_MODEL=kimi-k3
+```
+
+`.env` 中的默认 URL 和模型已按 Moonshot 配好。官方模型 ID 是 `kimi-k3`，中间有连字符。你也可以用 PowerShell 临时覆盖：
 
 ```powershell
-$env:JOB_INTEL_LLM_API_URL="https://example.com/v1/chat/completions"
+$env:JOB_INTEL_LLM_API_URL="https://api.moonshot.cn/v1/chat/completions"
 $env:JOB_INTEL_LLM_API_KEY="..."
-$env:JOB_INTEL_LLM_MODEL="..."
+$env:JOB_INTEL_LLM_MODEL="kimi-k3"
 python main.py run --source real --llm real --ocr mock
 ```
+
+检查真实 LLM 配置是否加载成功，不会发送样本内容：
+
+```powershell
+python main.py llm-status
+```
+
+输出里的 `api_key_configured: True` 表示 key 已被读取。Kimi K3 默认使用 `reasoning_effort: low`，减少抽取任务的延迟和成本。
 
 默认生成：
 

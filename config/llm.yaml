@@ -1,12 +1,17 @@
 {
   "real_llm": {
+    "env_file": ".env",
     "api_url_env": "JOB_INTEL_LLM_API_URL",
+    "api_url_fallback_envs": ["MOONSHOT_API_URL"],
+    "default_api_url": "https://api.moonshot.cn/v1/chat/completions",
     "api_key_env": "JOB_INTEL_LLM_API_KEY",
+    "api_key_fallback_envs": ["MOONSHOT_API_KEY"],
     "model_env": "JOB_INTEL_LLM_MODEL",
-    "default_model": "gpt-4.1-mini",
+    "model_fallback_envs": ["MOONSHOT_MODEL"],
+    "default_model": "kimi-k3",
     "timeout_seconds": 60,
     "max_retries": 2,
+    "reasoning_effort": "low",
     "prompt_dir": "prompts"
   }
 }
-

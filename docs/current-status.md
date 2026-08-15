@@ -10,7 +10,7 @@
 C:\Users\33967\AppData\Local\Programs\Python\Python312\python.exe -m pytest --basetemp data\pytest-tmp -o cache_dir=data\pytest-cache
 ```
 
-结果：`10 passed`。
+结果：`14 passed`。
 
 ## 真实样本盘点
 
@@ -26,7 +26,7 @@ C:\Users\33967\AppData\Local\Programs\Python\Python312\python.exe -m pytest --ba
 - 未填平台或空样本：5
 - 含图片：15
 - 纯文本：17
-- 已有 `gold.json`: 0
+- 已有 `gold.json`: 8
 - 空或不完整样本：5
 
 Offer 真实样本为 0 是当前阶段允许状态；Mock Offer 和 Offer Schema 仍保留。
@@ -51,8 +51,9 @@ Offer 真实样本为 0 是当前阶段允许状态；Mock Offer 和 Offer Schem
 ## 未完成 / 下一步
 
 - 真实 LLM prompt 需要用 gold 样本迭代。
-- 当前真实样本没有 gold，evaluation 只能验证流程，不能衡量准确率。
-- 可以先运行 `draft-gold` 生成 `gold_draft.json`，审核后再 `promote-gold`。
+- 当前真实样本已有 8 个审核通过的 gold，可用于初步回归；样本量仍需继续扩充。
+- 可以继续运行 `draft-gold` 生成 `gold_draft.json`，审核后再 `promote-gold`。
+- Moonshot/Kimi K3 `.env` 配置已接入；`llm-status` 可本地检查配置是否加载，不会发送样本内容。
 - PaddleOCRProvider 已在项目 `.venv` 中用 PaddleOCR 3.7.0 跑通单图 inspect。
 - 第一次运行 PaddleOCR 会下载官方模型到 `C:\Users\33967\.paddlex\official_models\`。
 - 真实小红书/牛客自动采集仍属于后续阶段，不在本阶段实现。

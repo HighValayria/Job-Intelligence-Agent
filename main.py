@@ -20,6 +20,13 @@ from scheduler.runner import PipelineRunner
 def main() -> None:
     _configure_utf8_stdio()
     args = _parse_args()
+    if args.command == "llm-status":
+        config = load_project_config(args.config_dir)
+        provider = create_llm_provider("real", config)
+        status = provider.configuration_status()
+        for key, value in status.items():
+            print(f"{key}: {value}")
+        return
     if args.command == "inventory":
         inventory = RealSampleLoader(args.samples_root).inventory()
         for key, value in inventory.items():
@@ -93,6 +100,11 @@ def _parse_args() -> argparse.Namespace:
 
     run_parser = subparsers.add_parser("run", help="Run the pipeline")
     _add_common_run_args(run_parser)
+
+    llm_status_parser = subparsers.add_parser(
+        "llm-status", help="Check real LLM configuration without sending sample data"
+    )
+    llm_status_parser.add_argument("--config-dir", type=Path, default=Path("config"))
 
     inventory_parser = subparsers.add_parser(
         "inventory", help="Inventory real fixture samples"

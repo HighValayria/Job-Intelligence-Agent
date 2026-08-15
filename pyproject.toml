@@ -23,7 +23,7 @@ testpaths = ["tests"]
 pythonpath = ["."]
 
 [tool.setuptools]
-py-modules = ["main", "config_loader", "pipeline_errors"]
+py-modules = ["main", "config_loader", "env_loader", "pipeline_errors"]
 packages = [
     "collectors",
     "models",
