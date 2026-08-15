@@ -17,7 +17,7 @@ class InterviewRound(JobIntelModel):
     algorithm_questions: list[str] | None = None
     scenario_questions: list[str] | None = None
     behavior_questions: list[str] | None = None
-    focus: list[str] | None = None
+    interviewer_focus: list[str] | None = None
     difficulty: str | None = None
     result: str | None = None
 
@@ -30,4 +30,3 @@ class Interview(ExtractedRecord):
     recruitment_type: str | None = None
     interview_date: date | None = None
     rounds: list[InterviewRound] | None = None
-

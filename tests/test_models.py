@@ -6,11 +6,11 @@ import pytest
 from pydantic import ValidationError
 
 from models.classification import ClassificationResult, PostType
+from models.information_gap import InformationGap
 from models.interview import Interview, InterviewRound
 from models.offer import Offer
 from models.raw_post import RawPost
 from models.recruitment import Recruitment
-from models.work_condition import WorkCondition
 
 
 def test_raw_post_model_requires_identifiers() -> None:
@@ -64,10 +64,11 @@ def test_four_business_schemas_validate() -> None:
         sign_on_bonus=20000,
         confidence=0.9,
     )
-    work_condition = WorkCondition(
+    information_gap = InformationGap(
         post_id="w1",
         company="腾讯",
         work_hours_raw="10:30-20:30",
+        topics=["wlb"],
         wlb_score=6.5,
         confidence=0.9,
     )
@@ -75,5 +76,5 @@ def test_four_business_schemas_validate() -> None:
     assert recruitment.company == "字节跳动"
     assert interview.rounds and interview.rounds[0].round_type == "一面"
     assert offer.annual_base is None
-    assert work_condition.wlb_score == 6.5
-
+    assert information_gap.topics == ["wlb"]
+    assert information_gap.wlb_score == 6.5

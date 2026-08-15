@@ -23,6 +23,11 @@ CREATE TABLE IF NOT EXISTS companies (
     aliases_json TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS schema_version (
+    version INTEGER PRIMARY KEY,
+    applied_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS posts (
     platform TEXT NOT NULL,
     post_id TEXT NOT NULL,
@@ -35,6 +40,7 @@ CREATE TABLE IF NOT EXISTS posts (
     images_json TEXT NOT NULL,
     metadata_json TEXT NOT NULL,
     ocr_text TEXT,
+    ocr_results_json TEXT NOT NULL DEFAULT '[]',
     full_content TEXT,
     content_fingerprint TEXT UNIQUE,
     primary_type TEXT,
@@ -67,6 +73,7 @@ CREATE TABLE IF NOT EXISTS recruitments (
     application_start TEXT,
     application_deadline TEXT,
     application_method TEXT,
+    source_url TEXT,
     official_url TEXT,
     referral_code TEXT,
     confidence REAL NOT NULL DEFAULT 0,
@@ -108,6 +115,7 @@ CREATE TABLE IF NOT EXISTS interview_rounds (
     scenario_questions_json TEXT,
     behavior_questions_json TEXT,
     focus_json TEXT,
+    interviewer_focus_json TEXT,
     difficulty TEXT,
     result TEXT,
     FOREIGN KEY (platform, post_id) REFERENCES posts(platform, post_id) ON DELETE CASCADE
@@ -151,17 +159,20 @@ CREATE TABLE IF NOT EXISTS offers (
     FOREIGN KEY (platform, post_id) REFERENCES posts(platform, post_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS work_conditions (
+CREATE TABLE IF NOT EXISTS information_gaps (
     platform TEXT NOT NULL,
     post_id TEXT NOT NULL,
     company TEXT,
     department TEXT,
+    job_title TEXT,
     job_family TEXT,
     city TEXT,
     base_monthly INTEGER,
+    salary_months INTEGER,
     annual_total_comp INTEGER,
     bonus TEXT,
     stock TEXT,
+    salary_raw TEXT,
     start_time TEXT,
     end_time_typical TEXT,
     end_time_extreme TEXT,
@@ -174,12 +185,27 @@ CREATE TABLE IF NOT EXISTS work_conditions (
     meal_allowance TEXT,
     housing TEXT,
     transport TEXT,
+    insurance TEXT,
+    provident_fund TEXT,
     management TEXT,
     team_atmosphere TEXT,
+    business_outlook TEXT,
     promotion TEXT,
     job_stability TEXT,
+    layoff_risk TEXT,
+    headcount_status TEXT,
+    headcount_estimate INTEGER,
+    hiring_difficulty TEXT,
+    conversion_rate TEXT,
+    offer_approval TEXT,
+    hiring_process_status TEXT,
+    pool_status TEXT,
     pros_json TEXT,
     cons_json TEXT,
+    warnings_json TEXT,
+    recommendation TEXT,
+    raw_information TEXT,
+    topics_json TEXT,
     wlb_score REAL,
     overall_sentiment TEXT,
     confidence REAL NOT NULL DEFAULT 0,
@@ -187,6 +213,54 @@ CREATE TABLE IF NOT EXISTS work_conditions (
     field_evidence_json TEXT NOT NULL,
     PRIMARY KEY (platform, post_id),
     FOREIGN KEY (platform, post_id) REFERENCES posts(platform, post_id) ON DELETE CASCADE
+);
+
+CREATE VIEW IF NOT EXISTS work_conditions AS
+SELECT
+    platform,
+    post_id,
+    company,
+    department,
+    job_family,
+    city,
+    base_monthly,
+    annual_total_comp,
+    bonus,
+    stock,
+    start_time,
+    end_time_typical,
+    end_time_extreme,
+    work_hours_raw,
+    overtime_frequency,
+    weekend_work,
+    on_call,
+    annual_leave,
+    canteen,
+    meal_allowance,
+    housing,
+    transport,
+    management,
+    team_atmosphere,
+    promotion,
+    job_stability,
+    pros_json,
+    cons_json,
+    wlb_score,
+    overall_sentiment,
+    confidence,
+    needs_review,
+    field_evidence_json
+FROM information_gaps;
+
+CREATE TABLE IF NOT EXISTS pipeline_errors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    sample_id TEXT,
+    post_id TEXT,
+    platform TEXT,
+    stage TEXT NOT NULL,
+    provider TEXT,
+    error TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 """
 
@@ -202,5 +276,26 @@ def open_connection(db_path: Path | str) -> sqlite3.Connection:
 
 def initialize_database(conn: sqlite3.Connection) -> None:
     conn.executescript(SCHEMA_SQL)
+    _run_compatibility_migrations(conn)
+    conn.execute(
+        "INSERT OR IGNORE INTO schema_version (version) VALUES (?)",
+        (2,),
+    )
     conn.commit()
 
+
+def _run_compatibility_migrations(conn: sqlite3.Connection) -> None:
+    _ensure_column(conn, "posts", "ocr_results_json", "TEXT NOT NULL DEFAULT '[]'")
+    _ensure_column(conn, "recruitments", "source_url", "TEXT")
+    _ensure_column(conn, "interview_rounds", "interviewer_focus_json", "TEXT")
+
+
+def _ensure_column(
+    conn: sqlite3.Connection, table_name: str, column_name: str, definition: str
+) -> None:
+    rows = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+    if not rows:
+        return
+    existing = {row[1] for row in rows}
+    if column_name not in existing:
+        conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {definition}")

@@ -1,5 +1,6 @@
 __pycache__/
 *.py[cod]
+.idea/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -10,4 +11,5 @@ data/*.sqlite3
 data/*.xlsx
 data/pytest-cache/
 data/pytest-tmp/
+real_samples/
 *.egg-info/

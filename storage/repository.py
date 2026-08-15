@@ -9,15 +9,15 @@ from typing import Any
 from uuid import uuid4
 
 from models.classification import ClassificationResult, PostType
+from models.information_gap import InformationGap
 from models.interview import Interview
 from models.offer import Offer
 from models.raw_post import RawPost
 from models.recruitment import Recruitment
 from models.unified_content import UnifiedContent
-from models.work_condition import WorkCondition
 from storage.db import initialize_database, open_connection
 
-ExtractedPayload = Recruitment | Interview | Offer | WorkCondition | None
+ExtractedPayload = Recruitment | Interview | Offer | InformationGap | None
 
 
 @dataclass(frozen=True)
@@ -89,6 +89,28 @@ class Repository:
                     ),
                 )
 
+    def log_pipeline_errors(self, errors: list[Any]) -> None:
+        if not errors:
+            return
+        with self.conn:
+            for error in errors:
+                data = error.model_dump(mode="json") if hasattr(error, "model_dump") else error
+                self.conn.execute(
+                    """
+                    INSERT INTO pipeline_errors
+                        (sample_id, post_id, platform, stage, provider, error)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        data.get("sample_id"),
+                        data.get("post_id"),
+                        data.get("platform"),
+                        data.get("stage"),
+                        data.get("provider"),
+                        data.get("error"),
+                    ),
+                )
+
     def post_exists(self, platform: str, post_id: str) -> bool:
         row = self.conn.execute(
             "SELECT 1 FROM posts WHERE platform = ? AND post_id = ? LIMIT 1",
@@ -135,11 +157,11 @@ class Repository:
                     INSERT INTO posts (
                         platform, post_id, url, title, author, publish_time,
                         crawl_time, raw_text, images_json, metadata_json,
-                        ocr_text, full_content, content_fingerprint,
+                        ocr_text, ocr_results_json, full_content, content_fingerprint,
                         primary_type, secondary_tags_json, extraction_json,
                         confidence, needs_review, inserted_at
                     )
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         raw_post.platform,
@@ -153,6 +175,7 @@ class Repository:
                         _json(raw_post.images),
                         _json(raw_post.metadata),
                         content.ocr_text,
+                        _json(content.ocr_results),
                         content.full_content,
                         content_fingerprint,
                         classification.primary_type.value,
@@ -215,12 +238,41 @@ class Repository:
         ).fetchall()
         return [dict(row) for row in rows]
 
+    def fetch_information_gap_sheet(self) -> list[dict[str, Any]]:
+        rows = self.conn.execute(
+            """
+            SELECT
+                ig.company AS 公司,
+                ig.department AS 部门,
+                ig.job_family AS 岗位方向,
+                ig.city AS 城市,
+                ig.topics_json AS topics_json,
+                ig.salary_raw AS 薪资,
+                ig.work_hours_raw AS 工时,
+                ig.headcount_status AS HC,
+                ig.conversion_rate AS 转正,
+                ig.team_atmosphere AS 团队,
+                ig.job_stability AS 稳定性,
+                ig.pros_json AS pros_json,
+                ig.cons_json AS cons_json,
+                ig.raw_information AS 原文摘要,
+                p.platform AS 平台,
+                p.publish_time AS 发布时间,
+                p.url AS 原始链接
+            FROM information_gaps ig
+            JOIN posts p
+              ON p.platform = ig.platform AND p.post_id = ig.post_id
+            ORDER BY p.crawl_time DESC, ig.platform, ig.post_id
+            """
+        ).fetchall()
+        return [dict(row) for row in rows]
+
     def _insert_extracted(
         self,
         platform: str,
         post_id: str,
         post_type: PostType,
-        extracted: Recruitment | Interview | Offer | WorkCondition,
+        extracted: Recruitment | Interview | Offer | InformationGap,
     ) -> None:
         if post_type == PostType.RECRUITMENT and isinstance(extracted, Recruitment):
             self._insert_recruitment(platform, post_id, extracted)
@@ -228,10 +280,10 @@ class Repository:
             self._insert_interview(platform, post_id, extracted)
         elif post_type == PostType.OFFER and isinstance(extracted, Offer):
             self._insert_offer(platform, post_id, extracted)
-        elif post_type == PostType.WORK_CONDITION and isinstance(
-            extracted, WorkCondition
+        elif post_type in {PostType.INFORMATION_GAP, PostType.WORK_CONDITION} and isinstance(
+            extracted, InformationGap
         ):
-            self._insert_work_condition(platform, post_id, extracted)
+            self._insert_information_gap(platform, post_id, extracted)
 
     def _insert_recruitment(
         self, platform: str, post_id: str, record: Recruitment
@@ -245,10 +297,10 @@ class Repository:
                 education_requirement, major_requirement, city, skills_json,
                 responsibilities_json, requirements_json, headcount,
                 application_start, application_deadline, application_method,
-                official_url, referral_code, confidence, needs_review,
+                source_url, official_url, referral_code, confidence, needs_review,
                 field_evidence_json
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 platform,
@@ -271,6 +323,7 @@ class Repository:
                 data["application_start"],
                 data["application_deadline"],
                 data["application_method"],
+                data["source_url"],
                 data["official_url"],
                 data["referral_code"],
                 data["confidence"],
@@ -312,9 +365,10 @@ class Repository:
                     self_intro, project_questions_json, basic_questions_json,
                     system_design_questions_json, coding_questions_json,
                     algorithm_questions_json, scenario_questions_json,
-                    behavior_questions_json, focus_json, difficulty, result
+                    behavior_questions_json, focus_json, interviewer_focus_json,
+                    difficulty, result
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     platform,
@@ -330,7 +384,8 @@ class Repository:
                     _json(round_data["algorithm_questions"]),
                     _json(round_data["scenario_questions"]),
                     _json(round_data["behavior_questions"]),
-                    _json(round_data["focus"]),
+                    _json(round_data.get("interviewer_focus")),
+                    _json(round_data.get("interviewer_focus")),
                     round_data["difficulty"],
                     round_data["result"],
                 ),
@@ -388,35 +443,43 @@ class Repository:
             ),
         )
 
-    def _insert_work_condition(
-        self, platform: str, post_id: str, record: WorkCondition
+    def _insert_information_gap(
+        self, platform: str, post_id: str, record: InformationGap
     ) -> None:
         data = record.model_dump(mode="json")
         self.conn.execute(
             """
-            INSERT INTO work_conditions (
-                platform, post_id, company, department, job_family, city,
-                base_monthly, annual_total_comp, bonus, stock, start_time,
+            INSERT INTO information_gaps (
+                platform, post_id, company, department, job_title, job_family, city,
+                base_monthly, salary_months, annual_total_comp, bonus, stock,
+                salary_raw, start_time,
                 end_time_typical, end_time_extreme, work_hours_raw,
                 overtime_frequency, weekend_work, on_call, annual_leave,
-                canteen, meal_allowance, housing, transport, management,
-                team_atmosphere, promotion, job_stability, pros_json,
-                cons_json, wlb_score, overall_sentiment, confidence,
+                canteen, meal_allowance, housing, transport, insurance,
+                provident_fund, management, team_atmosphere, business_outlook,
+                promotion, job_stability, layoff_risk, headcount_status,
+                headcount_estimate, hiring_difficulty, conversion_rate,
+                offer_approval, hiring_process_status, pool_status, pros_json,
+                cons_json, warnings_json, recommendation, raw_information,
+                topics_json, wlb_score, overall_sentiment, confidence,
                 needs_review, field_evidence_json
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 platform,
                 post_id,
                 data["company"],
                 data["department"],
+                data["job_title"],
                 data["job_family"],
                 data["city"],
                 data["base_monthly"],
+                data["salary_months"],
                 data["annual_total_comp"],
                 data["bonus"],
                 data["stock"],
+                data["salary_raw"],
                 data["start_time"],
                 data["end_time_typical"],
                 data["end_time_extreme"],
@@ -429,12 +492,27 @@ class Repository:
                 data["meal_allowance"],
                 data["housing"],
                 data["transport"],
+                data["insurance"],
+                data["provident_fund"],
                 data["management"],
                 data["team_atmosphere"],
+                data["business_outlook"],
                 data["promotion"],
                 data["job_stability"],
+                data["layoff_risk"],
+                data["headcount_status"],
+                data["headcount_estimate"],
+                data["hiring_difficulty"],
+                data["conversion_rate"],
+                data["offer_approval"],
+                data["hiring_process_status"],
+                data["pool_status"],
                 _json(data["pros"]),
                 _json(data["cons"]),
+                _json(data["warnings"]),
+                data["recommendation"],
+                data["raw_information"],
+                _json(data["topics"]),
                 data["wlb_score"],
                 data["overall_sentiment"],
                 data["confidence"],
@@ -452,7 +530,10 @@ _ALLOWED_TABLES = {
     "interviews",
     "interview_rounds",
     "offers",
+    "information_gaps",
     "work_conditions",
+    "pipeline_errors",
+    "schema_version",
 }
 
 
@@ -472,4 +553,3 @@ def _bool_to_int(value: bool | None) -> int | None:
     if value is None:
         return None
     return int(value)
-

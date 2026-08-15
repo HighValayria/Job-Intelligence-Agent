@@ -25,9 +25,8 @@ def test_excel_export_contains_required_sheets(tmp_path: Path) -> None:
         "面经",
         "面试轮次",
         "Offer",
-        "待遇与工作体验",
+        "信息差",
         "待人工确认",
     ]
     assert workbook["总览"].max_row == 5
     assert workbook["Offer"].max_row == 2
-

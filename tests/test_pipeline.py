@@ -27,5 +27,5 @@ def test_full_pipeline_and_rerun_dedup(tmp_path: Path) -> None:
         assert repository.count_rows("interviews") == 1
         assert repository.count_rows("interview_rounds") == 2
         assert repository.count_rows("offers") == 1
+        assert repository.count_rows("information_gaps") == 1
         assert repository.count_rows("work_conditions") == 1
-

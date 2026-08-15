@@ -6,11 +6,11 @@ from typing import Any
 from llm.base import ExtractedResult, LLMProvider
 from models.classification import ClassificationResult, PostType
 from models.common import EvidenceValue
+from models.information_gap import InformationGap
 from models.interview import Interview, InterviewRound
 from models.offer import Offer
 from models.recruitment import Recruitment
 from models.unified_content import UnifiedContent
-from models.work_condition import WorkCondition
 
 
 class MockLLMProvider(LLMProvider):
@@ -25,12 +25,26 @@ class MockLLMProvider(LLMProvider):
 
     def classify(self, content: UnifiedContent) -> ClassificationResult:
         text = content.full_content.lower()
-        if _contains(text, ("工作体验", "wlb", "下班", "加班", "on-call")):
+        if _contains(
+            text,
+            (
+                "工作体验",
+                "wlb",
+                "下班",
+                "加班",
+                "on-call",
+                "信息差",
+                "避坑",
+                "泡池子",
+                "hc",
+                "转正率",
+            ),
+        ):
             return ClassificationResult(
-                primary_type=PostType.WORK_CONDITION,
-                secondary_tags=["work_hours", "team"],
+                primary_type=PostType.INFORMATION_GAP,
+                secondary_tags=["team", "work_hours"],
                 confidence=0.92,
-                evidence=["工作体验", "WLB", "下班"],
+                evidence=["工作体验", "WLB", "下班", "信息差"],
             )
         if _contains(text, ("offer", "薪资", "sign", "总包")):
             return ClassificationResult(
@@ -68,8 +82,8 @@ class MockLLMProvider(LLMProvider):
             return self._extract_interview(content)
         if post_type == PostType.OFFER:
             return self._extract_offer(content)
-        if post_type == PostType.WORK_CONDITION:
-            return self._extract_work_condition(content)
+        if post_type in {PostType.INFORMATION_GAP, PostType.WORK_CONDITION}:
+            return self._extract_information_gap(content)
         return None
 
     def normalize(self, result: ExtractedResult) -> ExtractedResult:
@@ -145,7 +159,7 @@ class MockLLMProvider(LLMProvider):
                     algorithm_questions=["DIN attention"],
                     scenario_questions=None,
                     behavior_questions=None,
-                    focus=["推荐系统", "基础算法"],
+                    interviewer_focus=["推荐系统", "基础算法"],
                     difficulty=None,
                     result=None,
                 ),
@@ -161,7 +175,7 @@ class MockLLMProvider(LLMProvider):
                     algorithm_questions=["Top K", "负采样"],
                     scenario_questions=None,
                     behavior_questions=None,
-                    focus=["LLM", "推荐系统", "算法题"],
+                    interviewer_focus=["LLM", "推荐系统", "算法题"],
                     difficulty=None,
                     result=None,
                 ),
@@ -219,17 +233,20 @@ class MockLLMProvider(LLMProvider):
             },
         )
 
-    def _extract_work_condition(self, content: UnifiedContent) -> WorkCondition:
-        return WorkCondition(
+    def _extract_information_gap(self, content: UnifiedContent) -> InformationGap:
+        return InformationGap(
             post_id=content.post_id,
             company="腾讯",
             department="腾讯云",
+            job_title=None,
             job_family="数据开发",
             city="深圳",
             base_monthly=None,
+            salary_months=None,
             annual_total_comp=None,
             bonus=None,
             stock=None,
+            salary_raw=None,
             start_time="10:30",
             end_time_typical="20:30",
             end_time_extreme="23:00",
@@ -242,12 +259,27 @@ class MockLLMProvider(LLMProvider):
             meal_allowance=None,
             housing=None,
             transport="班车",
+            insurance=None,
+            provident_fund=None,
             management="管理规范",
             team_atmosphere="稳定",
+            business_outlook="业务成熟",
             promotion="偏慢",
             job_stability="业务成熟",
+            layoff_risk=None,
+            headcount_status=None,
+            headcount_estimate=None,
+            hiring_difficulty=None,
+            conversion_rate=None,
+            offer_approval=None,
+            hiring_process_status=None,
+            pool_status=None,
             pros=["业务成熟", "管理规范", "食堂不错", "有班车"],
             cons=["需求节奏波动大", "晋升偏慢"],
+            warnings=None,
+            recommendation=None,
+            raw_information=content.text,
+            topics=["benefit", "stability", "team", "wlb"],
             wlb_score=6.5,
             overall_sentiment="中性偏正",
             confidence=0.91,
@@ -302,4 +334,3 @@ def _evidence(
         confidence=confidence,
         evidence=evidence,
     )
-

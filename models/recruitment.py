@@ -24,6 +24,6 @@ class Recruitment(ExtractedRecord):
     application_start: date | None = None
     application_deadline: date | None = None
     application_method: str | None = None
+    source_url: str | None = None
     official_url: str | None = None
     referral_code: str | None = None
-

@@ -23,5 +23,5 @@ def load_project_config(config_dir: Path | str = "config") -> dict[str, Any]:
         "platforms": load_yaml(root / "platforms.yaml"),
         "companies": load_yaml(root / "companies.yaml"),
         "taxonomy": load_yaml(root / "taxonomy.yaml"),
+        "llm": load_yaml(root / "llm.yaml"),
     }
-

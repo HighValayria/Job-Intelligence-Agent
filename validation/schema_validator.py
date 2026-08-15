@@ -4,17 +4,18 @@ from pydantic import BaseModel
 
 from llm.base import ExtractedResult
 from models.classification import ClassificationResult, PostType
+from models.information_gap import InformationGap
 from models.interview import Interview
 from models.offer import Offer
 from models.recruitment import Recruitment
-from models.work_condition import WorkCondition
 
 
 _MODEL_BY_POST_TYPE: dict[PostType, type[BaseModel]] = {
     PostType.RECRUITMENT: Recruitment,
     PostType.INTERVIEW: Interview,
     PostType.OFFER: Offer,
-    PostType.WORK_CONDITION: WorkCondition,
+    PostType.INFORMATION_GAP: InformationGap,
+    PostType.WORK_CONDITION: InformationGap,
 }
 
 
@@ -33,4 +34,3 @@ def validate_extraction(post_type: PostType, value: ExtractedResult | dict) -> E
     if isinstance(value, BaseModel):
         value = value.model_dump(mode="json")
     return model.model_validate(value)
-

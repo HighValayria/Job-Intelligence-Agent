@@ -1,0 +1,141 @@
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any
+
+from collectors.real_fixture import RealSampleLoader, sample_to_raw_post
+from llm.base import LLMProvider
+from models.classification import PostType
+from processing.content_builder import ContentBuilder
+from processing.ocr import OCRProvider
+from scheduler.processor import process_raw_post
+
+
+@dataclass(frozen=True)
+class FieldCheck:
+    sample_id: str
+    field: str
+    expected: Any
+    actual: Any
+    passed: bool
+
+
+@dataclass
+class EvaluationReport:
+    sample_count: int
+    gold_count: int
+    offer_real_samples: int
+    checks: list[FieldCheck] = field(default_factory=list)
+    skipped_samples: list[str] = field(default_factory=list)
+
+    @property
+    def passed_count(self) -> int:
+        return len([check for check in self.checks if check.passed])
+
+    @property
+    def failed_count(self) -> int:
+        return len([check for check in self.checks if not check.passed])
+
+
+def evaluate_samples(
+    samples_root: Path | str,
+    *,
+    llm_provider: LLMProvider,
+    ocr_provider: OCRProvider,
+) -> EvaluationReport:
+    loader = RealSampleLoader(samples_root)
+    samples = loader.load_all(include_empty=False)
+    report = EvaluationReport(
+        sample_count=len(samples),
+        gold_count=len([sample for sample in samples if sample.has_gold]),
+        offer_real_samples=len(
+            [sample for sample in samples if sample.expected_type == PostType.OFFER]
+        ),
+    )
+    builder = ContentBuilder(ocr_provider)
+    for sample in samples:
+        if not sample.gold:
+            report.skipped_samples.append(sample.sample_id)
+            continue
+        processed = process_raw_post(
+            sample_to_raw_post(sample),
+            content_builder=builder,
+            llm_provider=llm_provider,
+        )
+        actual = _actual_payload(processed)
+        for field_path, expected in _flatten_gold(sample.gold):
+            actual_value = _get_path(actual, field_path)
+            report.checks.append(
+                FieldCheck(
+                    sample_id=sample.sample_id,
+                    field=".".join(field_path),
+                    expected=expected,
+                    actual=actual_value,
+                    passed=actual_value == expected,
+                )
+            )
+    return report
+
+
+def render_report(report: EvaluationReport) -> str:
+    lines = [
+        "Evaluation Report",
+        f"Samples: {report.sample_count}",
+        f"Gold samples: {report.gold_count}",
+        f"Offer real samples: {report.offer_real_samples}",
+    ]
+    if report.offer_real_samples == 0:
+        lines.append("Evaluation skipped")
+    if not report.checks:
+        lines.append("No gold checks to evaluate.")
+        return "\n".join(lines)
+
+    lines.append("")
+    lines.append("Sample | Field | Expected | Actual | Pass / Fail")
+    for check in report.checks:
+        status = "PASS" if check.passed else "FAIL"
+        lines.append(
+            f"{check.sample_id} | {check.field} | {check.expected} | {check.actual} | {status}"
+        )
+    lines.append("")
+    lines.append(f"Passed: {report.passed_count}")
+    lines.append(f"Failed: {report.failed_count}")
+    return "\n".join(lines)
+
+
+def _actual_payload(processed: Any) -> dict[str, Any]:
+    actual: dict[str, Any] = {}
+    if processed.classification is not None:
+        actual["primary_type"] = processed.classification.primary_type.value
+        actual["secondary_tags"] = processed.classification.secondary_tags
+    if processed.validated is not None:
+        actual.update(processed.validated.model_dump(mode="json"))
+    return actual
+
+
+def _flatten_gold(value: Any, prefix: tuple[str, ...] = ()) -> list[tuple[tuple[str, ...], Any]]:
+    if isinstance(value, dict):
+        output: list[tuple[tuple[str, ...], Any]] = []
+        for key, item in value.items():
+            output.extend(_flatten_gold(item, prefix + (key,)))
+        return output
+    if isinstance(value, list):
+        output = []
+        for index, item in enumerate(value):
+            output.extend(_flatten_gold(item, prefix + (str(index),)))
+        return output
+    return [(prefix, value)]
+
+
+def _get_path(value: Any, path: tuple[str, ...]) -> Any:
+    current = value
+    for part in path:
+        if isinstance(current, dict):
+            current = current.get(part)
+        elif isinstance(current, list) and part.isdigit():
+            index = int(part)
+            current = current[index] if index < len(current) else None
+        else:
+            return None
+    return current

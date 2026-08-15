@@ -1,0 +1,12 @@
+{
+  "real_llm": {
+    "api_url_env": "JOB_INTEL_LLM_API_URL",
+    "api_key_env": "JOB_INTEL_LLM_API_KEY",
+    "model_env": "JOB_INTEL_LLM_MODEL",
+    "default_model": "gpt-4.1-mini",
+    "timeout_seconds": 60,
+    "max_retries": 2,
+    "prompt_dir": "prompts"
+  }
+}
+

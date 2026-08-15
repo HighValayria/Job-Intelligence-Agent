@@ -28,11 +28,7 @@ class ExcelExporter:
         self._write_sheet(workbook, "面经", self.repository.fetch_all("interviews"))
         self._write_sheet(workbook, "面试轮次", self.repository.fetch_all("interview_rounds"))
         self._write_sheet(workbook, "Offer", self.repository.fetch_all("offers"))
-        self._write_sheet(
-            workbook,
-            "待遇与工作体验",
-            self.repository.fetch_all("work_conditions"),
-        )
+        self._write_sheet(workbook, "信息差", self.repository.fetch_information_gap_sheet())
         self._write_sheet(workbook, "待人工确认", self.repository.fetch_needs_review())
 
         workbook.save(path)
@@ -93,4 +89,3 @@ def _json_to_cell(value: str | None) -> str:
     if isinstance(parsed, list):
         return "；".join(str(item) for item in parsed)
     return json.dumps(parsed, ensure_ascii=False)
-

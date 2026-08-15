@@ -10,14 +10,11 @@ from dedup.content_dedup import ContentDeduplicator, content_fingerprint
 from dedup.post_dedup import PostDeduplicator
 from exporters.excel import ExcelExporter
 from llm.base import LLMProvider
-from llm.classifier import classify_content
-from llm.extractor import extract_content
 from llm.mock import MockLLMProvider
-from llm.normalizer import normalize_extracted
 from processing.content_builder import ContentBuilder
 from processing.ocr import MockOCRProvider, OCRProvider
+from scheduler.processor import process_raw_post
 from storage.repository import Repository
-from validation.schema_validator import validate_classification, validate_extraction
 
 
 @dataclass(frozen=True)
@@ -68,6 +65,7 @@ class PipelineRunner:
             content_builder = ContentBuilder(self.ocr_provider)
             post_dedup = PostDeduplicator(repository)
             content_dedup = ContentDeduplicator(repository)
+            raw_posts = []
 
             try:
                 raw_posts = self.collector.collect(queries)
@@ -76,28 +74,30 @@ class PipelineRunner:
                         _count(skipped_reasons, "duplicate_post_id")
                         continue
 
-                    content = content_builder.build(raw_post)
-                    fingerprint = content_fingerprint(content.full_content)
+                    processed = process_raw_post(
+                        raw_post,
+                        content_builder=content_builder,
+                        llm_provider=llm_provider,
+                    )
+                    repository.log_pipeline_errors(processed.errors)
+                    if (
+                        not processed.ok
+                        or processed.content is None
+                        or processed.classification is None
+                    ):
+                        _count(skipped_reasons, "processing_error")
+                        continue
+
+                    fingerprint = content_fingerprint(processed.content.full_content)
                     if content_dedup.is_duplicate(fingerprint):
                         _count(skipped_reasons, "duplicate_content")
                         continue
 
-                    classification = validate_classification(
-                        classify_content(llm_provider, content)
-                    )
-                    extracted = extract_content(
-                        llm_provider, content, classification.primary_type
-                    )
-                    normalized = normalize_extracted(llm_provider, extracted)
-                    validated = validate_extraction(
-                        classification.primary_type, normalized
-                    )
-
                     result = repository.save_processed_post(
                         raw_post=raw_post,
-                        content=content,
-                        classification=classification,
-                        extracted=validated,
+                        content=processed.content,
+                        classification=processed.classification,
+                        extracted=processed.validated,
                         content_fingerprint=fingerprint,
                     )
                     if result.inserted:
@@ -135,4 +135,3 @@ class PipelineRunner:
 
 def _count(counter: dict[str, int], reason: str) -> None:
     counter[reason] = counter.get(reason, 0) + 1
-

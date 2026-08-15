@@ -1,17 +1,21 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import Any
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 
 from models.common import JobIntelModel
 
 
 class OCRResult(JobIntelModel):
-    image: str
+    image_path: str = Field(validation_alias=AliasChoices("image_path", "image"))
     text: str = ""
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     provider: str = "unknown"
+    status: str = "ok"
+    error: str | None = None
+    raw_result: Any | None = None
 
 
 class OCRProvider(ABC):
@@ -27,11 +31,58 @@ class MockOCRProvider(OCRProvider):
     def extract(self, image: str) -> OCRResult:
         text = self.text_by_image.get(image, "")
         return OCRResult(
-            image=image,
+            image_path=image,
             text=text,
             confidence=0.99 if text else 0.0,
             provider="mock",
+            status="ok" if text else "empty",
         )
+
+
+class PaddleOCRProvider(OCRProvider):
+    def __init__(self, *, lang: str = "ch") -> None:
+        self.lang = lang
+        self._ocr: Any | None = None
+
+    def extract(self, image: str) -> OCRResult:
+        try:
+            ocr = self._get_ocr()
+            raw_result = _run_paddle_ocr(ocr, image)
+            lines, confidences = _parse_paddle_result(raw_result)
+            text = "\n".join(lines).strip()
+            confidence = (
+                sum(confidences) / len(confidences) if confidences else 0.0
+            )
+            return OCRResult(
+                image_path=image,
+                text=text,
+                confidence=confidence,
+                provider="paddleocr",
+                status="ok" if text else "empty",
+                raw_result={
+                    "line_count": len(lines),
+                    "scores": confidences,
+                },
+            )
+        except Exception as exc:
+            return OCRResult(
+                image_path=image,
+                text="",
+                confidence=0.0,
+                provider="paddleocr",
+                status="error",
+                error=str(exc),
+            )
+
+    def _get_ocr(self) -> Any:
+        if self._ocr is None:
+            from paddleocr import PaddleOCR
+
+            try:
+                self._ocr = PaddleOCR(lang=self.lang)
+            except TypeError:
+                self._ocr = PaddleOCR(use_angle_cls=True, lang=self.lang)
+        return self._ocr
 
 
 def _default_mock_ocr() -> dict[str, str]:
@@ -48,3 +99,33 @@ def _default_mock_ocr() -> dict[str, str]:
         )
     }
 
+
+def _run_paddle_ocr(ocr: Any, image: str) -> Any:
+    try:
+        return ocr.predict(input=image)
+    except AttributeError:
+        return ocr.ocr(image, cls=True)
+    except TypeError:
+        return ocr.ocr(image, cls=True)
+
+
+def _parse_paddle_result(raw_result: Any) -> tuple[list[str], list[float]]:
+    lines: list[str] = []
+    confidences: list[float] = []
+    for page in raw_result or []:
+        if isinstance(page, dict) or hasattr(page, "get"):
+            texts = list(page.get("rec_texts", []) or [])
+            scores = list(page.get("rec_scores", []) or [])
+            for index, text in enumerate(texts):
+                if text:
+                    lines.append(str(text))
+                    if index < len(scores):
+                        confidences.append(float(scores[index]))
+            continue
+        for line in page or []:
+            if len(line) >= 2 and len(line[1]) >= 2:
+                text, confidence = line[1][0], float(line[1][1])
+                if text:
+                    lines.append(str(text))
+                    confidences.append(confidence)
+    return lines, confidences
