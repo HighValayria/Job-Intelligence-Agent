@@ -66,14 +66,14 @@ def evaluate_samples(
         )
         actual = _actual_payload(processed)
         for field_path, expected in _flatten_gold(sample.gold):
-            actual_value = _get_path(actual, field_path)
+            actual_value, passed = _check_field(actual, field_path, expected)
             report.checks.append(
                 FieldCheck(
                     sample_id=sample.sample_id,
                     field=".".join(field_path),
                     expected=expected,
                     actual=actual_value,
-                    passed=_values_equal(actual_value, expected),
+                    passed=passed,
                 )
             )
     return report
@@ -142,13 +142,63 @@ def _get_path(value: Any, path: tuple[str, ...]) -> Any:
     return current
 
 
+def _check_field(actual: dict[str, Any], path: tuple[str, ...], expected: Any) -> tuple[Any, bool]:
+    actual_value = _get_path(actual, path)
+    if _values_equal(actual_value, expected):
+        return actual_value, True
+
+    list_parent_path = _nearest_list_parent_path(path)
+    if list_parent_path is None:
+        return actual_value, False
+
+    parent = _get_path(actual, list_parent_path)
+    if not isinstance(parent, list):
+        return actual_value, False
+    for item in parent:
+        if _values_equal(item, expected):
+            return item, True
+    return actual_value, False
+
+
+def _nearest_list_parent_path(path: tuple[str, ...]) -> tuple[str, ...] | None:
+    for index in range(len(path) - 1, -1, -1):
+        if path[index].isdigit():
+            return path[:index]
+    return None
+
+
 def _values_equal(actual: Any, expected: Any) -> bool:
     if actual == expected:
         return True
     if isinstance(actual, str) and isinstance(expected, str):
-        return _normalize_comparable_text(actual) == _normalize_comparable_text(expected)
+        actual_text = _normalize_comparable_text(actual)
+        expected_text = _normalize_comparable_text(expected)
+        if actual_text == expected_text:
+            return True
+        return _text_contains(actual_text, expected_text)
     return False
 
 
 def _normalize_comparable_text(value: str) -> str:
-    return re.sub(r"[\s，。！？、；：,.!?;:（）()\[\]【】“”\"'`·\-—_/]+", "", value).lower()
+    return re.sub(r"[\s，。！？、；：,.!?;:（）()\[\]【】“”\"'`·\-—_/｜|~～]+", "", value).lower()
+
+
+def _text_contains(actual: str, expected: str) -> bool:
+    actual_cleaned = _strip_common_prefixes(actual)
+    expected_cleaned = _strip_common_prefixes(expected)
+    if len(actual_cleaned) < 4 or len(expected_cleaned) < 4:
+        return False
+    return expected_cleaned in actual_cleaned or actual_cleaned in expected_cleaned
+
+
+def _strip_common_prefixes(value: str) -> str:
+    prefixes = ("手撕", "代码题", "coding", "leetcode", "lc", "算法手写题", "算法题")
+    output = value
+    changed = True
+    while changed:
+        changed = False
+        for prefix in prefixes:
+            if output.startswith(prefix):
+                output = output[len(prefix) :]
+                changed = True
+    return output

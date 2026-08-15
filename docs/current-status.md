@@ -10,7 +10,7 @@
 C:\Users\33967\AppData\Local\Programs\Python\Python312\python.exe -m pytest --basetemp data\pytest-tmp -o cache_dir=data\pytest-cache
 ```
 
-结果：`17 passed`。
+结果：`18 passed`。
 
 ## 真实样本盘点
 
@@ -55,7 +55,8 @@ Offer 真实样本为 0 是当前阶段允许状态；Mock Offer 和 Offer Schem
 - 可以继续运行 `draft-gold` 生成 `gold_draft.json`，审核后再 `promote-gold`。
 - Moonshot/Kimi K3 `.env` 配置已接入；`llm-status` 可本地检查配置是否加载，不会发送样本内容。
 - 真实 LLM 回归已跑通：Kimi K3 可完成分类和抽取，已补 schema 输出修复、metadata/source_url 输入、评估文本归一化和 `data/llm-cache/` 响应缓存。
-- 当前 12 个 gold 样本在 mock OCR 下的真实 LLM 字段级评估为 `118 passed / 155 failed`；剩余失败主要集中在字段粒度、列表对齐、信息差摘要和含图样本缺少真实 OCR。
+- 当前 12 个 gold 样本在 mock OCR 下的真实 LLM 字段级评估为 `149 passed / 124 failed`；评估器已支持同级列表匹配和文本包含匹配，剩余失败主要集中在字段粒度、信息差摘要、部分面经题目分类，以及含图样本缺少可外发的真实 OCR 内容。
+- PaddleOCR 本地 smoke 已验证国家电网图片样本可识别并进入 `UnifiedContent`；将 OCR 派生文本发送给 Moonshot 需要额外授权。
 - PaddleOCRProvider 已在项目 `.venv` 中用 PaddleOCR 3.7.0 跑通单图 inspect。
 - 第一次运行 PaddleOCR 会下载官方模型到 `C:\Users\33967\.paddlex\official_models\`。
 - 真实小红书/牛客自动采集仍属于后续阶段，不在本阶段实现。

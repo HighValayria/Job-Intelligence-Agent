@@ -6,6 +6,7 @@ from pathlib import Path
 from annotation import draft_gold, promote_gold
 from collectors.real_fixture import RealFixtureCollector, RealSampleLoader
 from evaluation import evaluate_samples, render_report
+from evaluation.evaluator import _check_field, _values_equal
 from inspection import inspect_sample
 from llm.mock import MockLLMProvider
 from processing.ocr import MockOCRProvider
@@ -78,6 +79,30 @@ def test_evaluation_supports_partial_gold(tmp_path: Path) -> None:
     assert report.gold_count == 1
     assert report.failed_count == 0
     assert "PASS" in render_report(report)
+
+
+def test_evaluation_matches_list_items_without_index_lockstep() -> None:
+    actual = {
+        "rounds": [
+            {
+                "coding_questions": [
+                    "手撕：Merge K sorted lists",
+                    "Reverse linked list",
+                ]
+            }
+        ]
+    }
+
+    matched_value, passed = _check_field(
+        actual,
+        ("rounds", "0", "coding_questions", "0"),
+        "Merge K sorted lists",
+    )
+
+    assert passed is True
+    assert matched_value == "手撕：Merge K sorted lists"
+    assert _values_equal("Java/Python backend roles", "backend roles")
+    assert not _values_equal("AI", "BI")
 
 
 def test_inspect_sample_outputs_intermediate_sections(tmp_path: Path) -> None:
