@@ -93,6 +93,8 @@ def main() -> None:
         ),
         ocr_provider=create_ocr_provider(args.ocr),
         llm_provider=create_llm_provider(args.llm, load_project_config(args.config_dir)),
+        ingest_algorithm_questions=args.ingest_algorithm_questions,
+        algorithm_db_path=args.algorithm_db_path,
     ).run()
     print(
         "Job Intelligence Agent run complete: "
@@ -104,6 +106,15 @@ def main() -> None:
     )
     if stats.skipped_reasons:
         print(f"Skipped reasons: {stats.skipped_reasons}")
+    if stats.algorithm_db_path is not None:
+        print(
+            "Algorithm question ingestion: "
+            f"mentions_seen={stats.algorithm_mentions_seen}, "
+            f"questions_saved={stats.algorithm_questions_saved}, "
+            f"linked_to_hot_pool={stats.algorithm_questions_linked_to_hot_pool}, "
+            f"pending_without_url={stats.algorithm_questions_pending_without_url}, "
+            f"db={stats.algorithm_db_path}"
+        )
 
 
 def _parse_args() -> argparse.Namespace:
@@ -173,6 +184,8 @@ def _parse_args() -> argparse.Namespace:
         inbox_dir=Path("data/inbox/html"),
         llm="mock",
         ocr="mock",
+        ingest_algorithm_questions=False,
+        algorithm_db_path=Path("data/algorithm_push.sqlite3"),
     )
     args = parser.parse_args()
     if args.command == "run" and not hasattr(args, "source"):
@@ -199,6 +212,16 @@ def _add_common_run_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--inbox-dir", type=Path, default=Path("data/inbox/html"))
     parser.add_argument("--llm", choices=["mock", "real"], default="mock")
     parser.add_argument("--ocr", choices=["mock", "paddle"], default="mock")
+    parser.add_argument(
+        "--ingest-algorithm-questions",
+        action="store_true",
+        help="Ingest interview algorithm questions into the independent algorithm registry",
+    )
+    parser.add_argument(
+        "--algorithm-db-path",
+        type=Path,
+        default=Path("data/algorithm_push.sqlite3"),
+    )
 
 
 def _add_default_run_values(args: argparse.Namespace) -> None:
@@ -210,6 +233,8 @@ def _add_default_run_values(args: argparse.Namespace) -> None:
     args.inbox_dir = Path("data/inbox/html")
     args.llm = "mock"
     args.ocr = "mock"
+    args.ingest_algorithm_questions = False
+    args.algorithm_db_path = Path("data/algorithm_push.sqlite3")
 
 
 if __name__ == "__main__":

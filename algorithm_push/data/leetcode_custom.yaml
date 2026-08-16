@@ -1,0 +1,21 @@
+questions:
+  - canonical_key: leetcode:47
+    title: "47. 全排列 II"
+    url: "https://leetcode.cn/problems/permutations-ii/"
+    pool: leetcode_custom
+    platform: leetcode
+    primary_tag: backtracking
+    tags: [backtracking, array_hash]
+    aliases:
+      - 全排列 II
+      - Permutations II
+  - canonical_key: leetcode:1094
+    title: "1094. 拼车"
+    url: "https://leetcode.cn/problems/car-pooling/"
+    pool: leetcode_custom
+    platform: leetcode
+    primary_tag: greedy
+    tags: [greedy, array_hash]
+    aliases:
+      - 拼车
+      - Car Pooling

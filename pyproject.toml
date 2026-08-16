@@ -38,4 +38,18 @@ packages = [
     "normalization",
     "evaluation",
     "inspection",
+    "algorithm_push",
+    "algorithm_push.cli",
+    "algorithm_push.ingestion",
+    "algorithm_push.history",
+    "algorithm_push.models",
+    "algorithm_push.push",
+    "algorithm_push.registry",
+    "algorithm_push.scheduler",
+    "algorithm_push.selector",
+    "algorithm_push.validation",
+    "algorithm_push.webhook",
 ]
+
+[tool.setuptools.package-data]
+algorithm_push = ["config/*.yaml", "data/*.yaml"]

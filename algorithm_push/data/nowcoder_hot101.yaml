@@ -1,0 +1,406 @@
+questions:
+  - canonical_key: nowcoder:BM1
+    title: "BM1 反转链表"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM2
+    title: "BM2 链表内指定区间反转"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM3
+    title: "BM3 链表中的节点每k个一组翻转"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM4
+    title: "BM4 合并两个排序的链表"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM5
+    title: "BM5 合并k个已排序的链表"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM6
+    title: "BM6 判断链表中是否有环"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM7
+    title: "BM7 链表中环的入口结点"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM8
+    title: "BM8 链表中倒数最后k个结点"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM9
+    title: "BM9 删除链表的倒数第n个节点"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM10
+    title: "BM10 两个链表的第一个公共结点"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM11
+    title: "BM11 链表相加(二)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM12
+    title: "BM12 单链表的排序"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM13
+    title: "BM13 判断一个链表是否为回文结构"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM14
+    title: "BM14 链表的奇偶重排"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM15
+    title: "BM15 删除有序链表中重复的元素-I"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM16
+    title: "BM16 删除有序链表中重复的元素-II"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: linked_list
+  - canonical_key: nowcoder:BM17
+    title: "BM17 二分查找-I"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_search
+  - canonical_key: nowcoder:BM18
+    title: "BM18 二维数组中的查找"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_search
+  - canonical_key: nowcoder:BM19
+    title: "BM19 寻找峰值"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_search
+  - canonical_key: nowcoder:BM20
+    title: "BM20 数组中的逆序对"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM21
+    title: "BM21 旋转数组的最小数字"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_search
+  - canonical_key: nowcoder:BM22
+    title: "BM22 比较版本号"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: string
+  - canonical_key: nowcoder:BM23
+    title: "BM23 二叉树的前序遍历"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM24
+    title: "BM24 二叉树的中序遍历"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM25
+    title: "BM25 二叉树的后序遍历"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM26
+    title: "BM26 求二叉树的层序遍历"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM27
+    title: "BM27 按之字形顺序打印二叉树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM28
+    title: "BM28 二叉树的最大深度"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM29
+    title: "BM29 二叉树中和为某一值的路径(一)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM30
+    title: "BM30 二叉搜索树与双向链表"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM31
+    title: "BM31 对称的二叉树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM32
+    title: "BM32 合并二叉树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM33
+    title: "BM33 二叉树的镜像"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM34
+    title: "BM34 判断是不是二叉搜索树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM35
+    title: "BM35 判断是不是完全二叉树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM36
+    title: "BM36 判断是不是平衡二叉树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM37
+    title: "BM37 二叉搜索树的最近公共祖先"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM38
+    title: "BM38 在二叉树中找到两个节点的最近公共祖先"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM39
+    title: "BM39 序列化二叉树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM40
+    title: "BM40 重建二叉树"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM41
+    title: "BM41 输出二叉树的右视图"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: binary_tree
+  - canonical_key: nowcoder:BM42
+    title: "BM42 用两个栈实现队列"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: stack_queue
+  - canonical_key: nowcoder:BM43
+    title: "BM43 包含min函数的栈"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: stack_queue
+  - canonical_key: nowcoder:BM44
+    title: "BM44 有效括号序列"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: stack_queue
+  - canonical_key: nowcoder:BM45
+    title: "BM45 滑动窗口的最大值"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: stack_queue
+  - canonical_key: nowcoder:BM46
+    title: "BM46 最小的K个数"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: heap
+    aliases: ["Top K", "手撕 Top K", "最小的K个数"]
+  - canonical_key: nowcoder:BM47
+    title: "BM47 寻找第K大"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: heap
+  - canonical_key: nowcoder:BM48
+    title: "BM48 数据流中的中位数"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: heap
+  - canonical_key: nowcoder:BM49
+    title: "BM49 表达式求值"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: stack_queue
+  - canonical_key: nowcoder:BM50
+    title: "BM50 两数之和"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM51
+    title: "BM51 数组中出现次数超过一半的数字"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM52
+    title: "BM52 数组中只出现一次的两个数字"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM53
+    title: "BM53 缺失的第一个正整数"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM54
+    title: "BM54 三数之和"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: nowcoder:BM55
+    title: "BM55 没有重复项数字的全排列"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: backtracking
+  - canonical_key: nowcoder:BM56
+    title: "BM56 有重复项数字的全排列"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: backtracking
+  - canonical_key: nowcoder:BM57
+    title: "BM57 岛屿数量"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: graph
+  - canonical_key: nowcoder:BM58
+    title: "BM58 字符串的排列"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: backtracking
+  - canonical_key: nowcoder:BM59
+    title: "BM59 N皇后问题"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: backtracking
+  - canonical_key: nowcoder:BM60
+    title: "BM60 括号生成"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: backtracking
+  - canonical_key: nowcoder:BM61
+    title: "BM61 矩阵最长递增路径"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM62
+    title: "BM62 斐波那契数列"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM63
+    title: "BM63 跳台阶"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM64
+    title: "BM64 最小花费爬楼梯"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM65
+    title: "BM65 最长公共子序列(二)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM66
+    title: "BM66 最长公共子串"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM67
+    title: "BM67 不同路径的数目(一)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM68
+    title: "BM68 矩阵的最小路径和"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM69
+    title: "BM69 把数字翻译成字符串"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM70
+    title: "BM70 兑换零钱(一)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM71
+    title: "BM71 最长上升子序列(一)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM72
+    title: "BM72 连续子数组的最大和"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM73
+    title: "BM73 最长回文子串"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM74
+    title: "BM74 数字字符串转化成IP地址"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: string
+  - canonical_key: nowcoder:BM75
+    title: "BM75 编辑距离(一)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM76
+    title: "BM76 正则表达式匹配"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM77
+    title: "BM77 最长的括号子串"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM78
+    title: "BM78 打家劫舍(一)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM79
+    title: "BM79 打家劫舍(二)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM80
+    title: "BM80 买卖股票的最好时机(一)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: greedy
+  - canonical_key: nowcoder:BM81
+    title: "BM81 买卖股票的最好时机(二)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: greedy
+  - canonical_key: nowcoder:BM82
+    title: "BM82 买卖股票的最好时机(三)"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: dynamic_programming
+  - canonical_key: nowcoder:BM83
+    title: "BM83 字符串变形"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: string
+  - canonical_key: nowcoder:BM84
+    title: "BM84 最长公共前缀"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: string
+  - canonical_key: nowcoder:BM85
+    title: "BM85 验证IP地址"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: string
+  - canonical_key: nowcoder:BM86
+    title: "BM86 大数加法"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: string
+  - canonical_key: nowcoder:BM87
+    title: "BM87 合并两个有序的数组"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM88
+    title: "BM88 判断是否为回文字符串"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: nowcoder:BM89
+    title: "BM89 合并区间"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM90
+    title: "BM90 最小覆盖子串"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: nowcoder:BM91
+    title: "BM91 反转字符串"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: string
+  - canonical_key: nowcoder:BM92
+    title: "BM92 最长无重复子数组"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: nowcoder:BM93
+    title: "BM93 盛水最多的容器"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: nowcoder:BM94
+    title: "BM94 接雨水问题"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: nowcoder:BM95
+    title: "BM95 分糖果问题"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: greedy
+  - canonical_key: nowcoder:BM96
+    title: "BM96 主持人调度（二）"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: greedy
+  - canonical_key: nowcoder:BM97
+    title: "BM97 旋转数组"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM98
+    title: "BM98 螺旋矩阵"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM99
+    title: "BM99 顺时针旋转矩阵"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: array_hash
+  - canonical_key: nowcoder:BM100
+    title: "BM100 设计LRU缓存结构"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: design
+  - canonical_key: nowcoder:BM101
+    title: "BM101 设计LFU缓存结构"
+    url: "https://www.nowcoder.com/exam/oj/ta?tpId=295"
+    primary_tag: design

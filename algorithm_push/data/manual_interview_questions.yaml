@@ -1,0 +1,28 @@
+questions:
+  - canonical_key: leetcode:460
+    title: "460. LFU Cache"
+    url: "https://leetcode.cn/problems/lfu-cache/"
+    pool: interview_manual
+    platform: leetcode
+    primary_tag: design
+    tags: [design, linked_list]
+    aliases:
+      - LFU Cache
+  - canonical_key: leetcode:470
+    title: "470. Implement Rand10 Using Rand7"
+    url: "https://leetcode.cn/problems/implement-rand10-using-rand7/"
+    pool: interview_manual
+    platform: leetcode
+    primary_tag: math
+    tags: [math]
+    aliases:
+      - Rand10 Using Rand7
+  - canonical_key: leetcode:528
+    title: "528. Random Pick with Weight"
+    url: "https://leetcode.cn/problems/random-pick-with-weight/"
+    pool: interview_manual
+    platform: leetcode
+    primary_tag: binary_search
+    tags: [binary_search, array_hash]
+    aliases:
+      - Random Pick with Weight

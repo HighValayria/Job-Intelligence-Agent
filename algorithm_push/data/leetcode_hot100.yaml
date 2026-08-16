@@ -1,0 +1,402 @@
+questions:
+  - canonical_key: leetcode:1
+    title: "1. Two Sum"
+    url: "https://leetcode.cn/problems/two-sum/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:49
+    title: "49. Group Anagrams"
+    url: "https://leetcode.cn/problems/group-anagrams/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:128
+    title: "128. Longest Consecutive Sequence"
+    url: "https://leetcode.cn/problems/longest-consecutive-sequence/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:283
+    title: "283. Move Zeroes"
+    url: "https://leetcode.cn/problems/move-zeroes/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:11
+    title: "11. Container With Most Water"
+    url: "https://leetcode.cn/problems/container-with-most-water/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:15
+    title: "15. 3Sum"
+    url: "https://leetcode.cn/problems/3sum/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:42
+    title: "42. Trapping Rain Water"
+    url: "https://leetcode.cn/problems/trapping-rain-water/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:3
+    title: "3. Longest Substring Without Repeating Characters"
+    url: "https://leetcode.cn/problems/longest-substring-without-repeating-characters/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:438
+    title: "438. Find All Anagrams in a String"
+    url: "https://leetcode.cn/problems/find-all-anagrams-in-a-string/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:560
+    title: "560. Subarray Sum Equals K"
+    url: "https://leetcode.cn/problems/subarray-sum-equals-k/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:239
+    title: "239. Sliding Window Maximum"
+    url: "https://leetcode.cn/problems/sliding-window-maximum/"
+    primary_tag: stack_queue
+  - canonical_key: leetcode:76
+    title: "76. Minimum Window Substring"
+    url: "https://leetcode.cn/problems/minimum-window-substring/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:53
+    title: "53. Maximum Subarray"
+    url: "https://leetcode.cn/problems/maximum-subarray/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:56
+    title: "56. Merge Intervals"
+    url: "https://leetcode.cn/problems/merge-intervals/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:189
+    title: "189. Rotate Array"
+    url: "https://leetcode.cn/problems/rotate-array/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:238
+    title: "238. Product of Array Except Self"
+    url: "https://leetcode.cn/problems/product-of-array-except-self/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:41
+    title: "41. First Missing Positive"
+    url: "https://leetcode.cn/problems/first-missing-positive/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:73
+    title: "73. Set Matrix Zeroes"
+    url: "https://leetcode.cn/problems/set-matrix-zeroes/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:54
+    title: "54. Spiral Matrix"
+    url: "https://leetcode.cn/problems/spiral-matrix/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:48
+    title: "48. Rotate Image"
+    url: "https://leetcode.cn/problems/rotate-image/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:240
+    title: "240. Search a 2D Matrix II"
+    url: "https://leetcode.cn/problems/search-a-2d-matrix-ii/"
+    primary_tag: binary_search
+  - canonical_key: leetcode:160
+    title: "160. Intersection of Two Linked Lists"
+    url: "https://leetcode.cn/problems/intersection-of-two-linked-lists/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:206
+    title: "206. Reverse Linked List"
+    url: "https://leetcode.cn/problems/reverse-linked-list/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:234
+    title: "234. Palindrome Linked List"
+    url: "https://leetcode.cn/problems/palindrome-linked-list/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:141
+    title: "141. Linked List Cycle"
+    url: "https://leetcode.cn/problems/linked-list-cycle/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:142
+    title: "142. Linked List Cycle II"
+    url: "https://leetcode.cn/problems/linked-list-cycle-ii/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:21
+    title: "21. Merge Two Sorted Lists"
+    url: "https://leetcode.cn/problems/merge-two-sorted-lists/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:2
+    title: "2. Add Two Numbers"
+    url: "https://leetcode.cn/problems/add-two-numbers/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:19
+    title: "19. Remove Nth Node From End of List"
+    url: "https://leetcode.cn/problems/remove-nth-node-from-end-of-list/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:24
+    title: "24. Swap Nodes in Pairs"
+    url: "https://leetcode.cn/problems/swap-nodes-in-pairs/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:25
+    title: "25. Reverse Nodes in k-Group"
+    url: "https://leetcode.cn/problems/reverse-nodes-in-k-group/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:138
+    title: "138. Copy List with Random Pointer"
+    url: "https://leetcode.cn/problems/copy-list-with-random-pointer/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:148
+    title: "148. Sort List"
+    url: "https://leetcode.cn/problems/sort-list/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:23
+    title: "23. Merge k Sorted Lists"
+    url: "https://leetcode.cn/problems/merge-k-sorted-lists/"
+    primary_tag: linked_list
+  - canonical_key: leetcode:146
+    title: "146. LRU Cache"
+    url: "https://leetcode.cn/problems/lru-cache/"
+    primary_tag: design
+    aliases: ["LRU", "LRU Cache", "手撕 LRU"]
+  - canonical_key: leetcode:94
+    title: "94. Binary Tree Inorder Traversal"
+    url: "https://leetcode.cn/problems/binary-tree-inorder-traversal/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:104
+    title: "104. Maximum Depth of Binary Tree"
+    url: "https://leetcode.cn/problems/maximum-depth-of-binary-tree/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:226
+    title: "226. Invert Binary Tree"
+    url: "https://leetcode.cn/problems/invert-binary-tree/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:101
+    title: "101. Symmetric Tree"
+    url: "https://leetcode.cn/problems/symmetric-tree/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:543
+    title: "543. Diameter of Binary Tree"
+    url: "https://leetcode.cn/problems/diameter-of-binary-tree/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:102
+    title: "102. Binary Tree Level Order Traversal"
+    url: "https://leetcode.cn/problems/binary-tree-level-order-traversal/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:108
+    title: "108. Convert Sorted Array to Binary Search Tree"
+    url: "https://leetcode.cn/problems/convert-sorted-array-to-binary-search-tree/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:98
+    title: "98. Validate Binary Search Tree"
+    url: "https://leetcode.cn/problems/validate-binary-search-tree/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:230
+    title: "230. Kth Smallest Element in a BST"
+    url: "https://leetcode.cn/problems/kth-smallest-element-in-a-bst/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:199
+    title: "199. Binary Tree Right Side View"
+    url: "https://leetcode.cn/problems/binary-tree-right-side-view/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:114
+    title: "114. Flatten Binary Tree to Linked List"
+    url: "https://leetcode.cn/problems/flatten-binary-tree-to-linked-list/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:105
+    title: "105. Construct Binary Tree from Preorder and Inorder Traversal"
+    url: "https://leetcode.cn/problems/construct-binary-tree-from-preorder-and-inorder-traversal/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:437
+    title: "437. Path Sum III"
+    url: "https://leetcode.cn/problems/path-sum-iii/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:236
+    title: "236. Lowest Common Ancestor of a Binary Tree"
+    url: "https://leetcode.cn/problems/lowest-common-ancestor-of-a-binary-tree/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:124
+    title: "124. Binary Tree Maximum Path Sum"
+    url: "https://leetcode.cn/problems/binary-tree-maximum-path-sum/"
+    primary_tag: binary_tree
+  - canonical_key: leetcode:200
+    title: "200. Number of Islands"
+    url: "https://leetcode.cn/problems/number-of-islands/"
+    primary_tag: graph
+  - canonical_key: leetcode:994
+    title: "994. Rotting Oranges"
+    url: "https://leetcode.cn/problems/rotting-oranges/"
+    primary_tag: graph
+  - canonical_key: leetcode:207
+    title: "207. Course Schedule"
+    url: "https://leetcode.cn/problems/course-schedule/"
+    primary_tag: graph
+  - canonical_key: leetcode:208
+    title: "208. Implement Trie"
+    url: "https://leetcode.cn/problems/implement-trie-prefix-tree/"
+    primary_tag: design
+  - canonical_key: leetcode:46
+    title: "46. Permutations"
+    url: "https://leetcode.cn/problems/permutations/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:78
+    title: "78. Subsets"
+    url: "https://leetcode.cn/problems/subsets/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:17
+    title: "17. Letter Combinations of a Phone Number"
+    url: "https://leetcode.cn/problems/letter-combinations-of-a-phone-number/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:39
+    title: "39. Combination Sum"
+    url: "https://leetcode.cn/problems/combination-sum/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:22
+    title: "22. Generate Parentheses"
+    url: "https://leetcode.cn/problems/generate-parentheses/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:79
+    title: "79. Word Search"
+    url: "https://leetcode.cn/problems/word-search/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:131
+    title: "131. Palindrome Partitioning"
+    url: "https://leetcode.cn/problems/palindrome-partitioning/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:51
+    title: "51. N-Queens"
+    url: "https://leetcode.cn/problems/n-queens/"
+    primary_tag: backtracking
+  - canonical_key: leetcode:35
+    title: "35. Search Insert Position"
+    url: "https://leetcode.cn/problems/search-insert-position/"
+    primary_tag: binary_search
+  - canonical_key: leetcode:74
+    title: "74. Search a 2D Matrix"
+    url: "https://leetcode.cn/problems/search-a-2d-matrix/"
+    primary_tag: binary_search
+  - canonical_key: leetcode:34
+    title: "34. Find First and Last Position of Element in Sorted Array"
+    url: "https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/"
+    primary_tag: binary_search
+  - canonical_key: leetcode:33
+    title: "33. Search in Rotated Sorted Array"
+    url: "https://leetcode.cn/problems/search-in-rotated-sorted-array/"
+    primary_tag: binary_search
+  - canonical_key: leetcode:153
+    title: "153. Find Minimum in Rotated Sorted Array"
+    url: "https://leetcode.cn/problems/find-minimum-in-rotated-sorted-array/"
+    primary_tag: binary_search
+  - canonical_key: leetcode:4
+    title: "4. Median of Two Sorted Arrays"
+    url: "https://leetcode.cn/problems/median-of-two-sorted-arrays/"
+    primary_tag: binary_search
+  - canonical_key: leetcode:20
+    title: "20. Valid Parentheses"
+    url: "https://leetcode.cn/problems/valid-parentheses/"
+    primary_tag: stack_queue
+  - canonical_key: leetcode:155
+    title: "155. Min Stack"
+    url: "https://leetcode.cn/problems/min-stack/"
+    primary_tag: stack_queue
+  - canonical_key: leetcode:394
+    title: "394. Decode String"
+    url: "https://leetcode.cn/problems/decode-string/"
+    primary_tag: stack_queue
+  - canonical_key: leetcode:739
+    title: "739. Daily Temperatures"
+    url: "https://leetcode.cn/problems/daily-temperatures/"
+    primary_tag: stack_queue
+  - canonical_key: leetcode:84
+    title: "84. Largest Rectangle in Histogram"
+    url: "https://leetcode.cn/problems/largest-rectangle-in-histogram/"
+    primary_tag: stack_queue
+  - canonical_key: leetcode:215
+    title: "215. Kth Largest Element in an Array"
+    url: "https://leetcode.cn/problems/kth-largest-element-in-an-array/"
+    primary_tag: heap
+  - canonical_key: leetcode:347
+    title: "347. Top K Frequent Elements"
+    url: "https://leetcode.cn/problems/top-k-frequent-elements/"
+    primary_tag: heap
+  - canonical_key: leetcode:295
+    title: "295. Find Median from Data Stream"
+    url: "https://leetcode.cn/problems/find-median-from-data-stream/"
+    primary_tag: heap
+  - canonical_key: leetcode:121
+    title: "121. Best Time to Buy and Sell Stock"
+    url: "https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/"
+    primary_tag: greedy
+  - canonical_key: leetcode:55
+    title: "55. Jump Game"
+    url: "https://leetcode.cn/problems/jump-game/"
+    primary_tag: greedy
+  - canonical_key: leetcode:45
+    title: "45. Jump Game II"
+    url: "https://leetcode.cn/problems/jump-game-ii/"
+    primary_tag: greedy
+  - canonical_key: leetcode:763
+    title: "763. Partition Labels"
+    url: "https://leetcode.cn/problems/partition-labels/"
+    primary_tag: greedy
+  - canonical_key: leetcode:70
+    title: "70. Climbing Stairs"
+    url: "https://leetcode.cn/problems/climbing-stairs/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:118
+    title: "118. Pascal's Triangle"
+    url: "https://leetcode.cn/problems/pascals-triangle/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:198
+    title: "198. House Robber"
+    url: "https://leetcode.cn/problems/house-robber/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:279
+    title: "279. Perfect Squares"
+    url: "https://leetcode.cn/problems/perfect-squares/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:322
+    title: "322. Coin Change"
+    url: "https://leetcode.cn/problems/coin-change/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:139
+    title: "139. Word Break"
+    url: "https://leetcode.cn/problems/word-break/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:300
+    title: "300. Longest Increasing Subsequence"
+    url: "https://leetcode.cn/problems/longest-increasing-subsequence/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:152
+    title: "152. Maximum Product Subarray"
+    url: "https://leetcode.cn/problems/maximum-product-subarray/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:416
+    title: "416. Partition Equal Subset Sum"
+    url: "https://leetcode.cn/problems/partition-equal-subset-sum/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:32
+    title: "32. Longest Valid Parentheses"
+    url: "https://leetcode.cn/problems/longest-valid-parentheses/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:62
+    title: "62. Unique Paths"
+    url: "https://leetcode.cn/problems/unique-paths/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:64
+    title: "64. Minimum Path Sum"
+    url: "https://leetcode.cn/problems/minimum-path-sum/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:5
+    title: "5. Longest Palindromic Substring"
+    url: "https://leetcode.cn/problems/longest-palindromic-substring/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:1143
+    title: "1143. Longest Common Subsequence"
+    url: "https://leetcode.cn/problems/longest-common-subsequence/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:72
+    title: "72. Edit Distance"
+    url: "https://leetcode.cn/problems/edit-distance/"
+    primary_tag: dynamic_programming
+  - canonical_key: leetcode:136
+    title: "136. Single Number"
+    url: "https://leetcode.cn/problems/single-number/"
+    primary_tag: math
+  - canonical_key: leetcode:169
+    title: "169. Majority Element"
+    url: "https://leetcode.cn/problems/majority-element/"
+    primary_tag: array_hash
+  - canonical_key: leetcode:75
+    title: "75. Sort Colors"
+    url: "https://leetcode.cn/problems/sort-colors/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:31
+    title: "31. Next Permutation"
+    url: "https://leetcode.cn/problems/next-permutation/"
+    primary_tag: two_pointer_sliding_window
+  - canonical_key: leetcode:287
+    title: "287. Find the Duplicate Number"
+    url: "https://leetcode.cn/problems/find-the-duplicate-number/"
+    primary_tag: two_pointer_sliding_window

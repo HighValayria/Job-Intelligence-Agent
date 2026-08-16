@@ -10,6 +10,7 @@ data/*.db
 data/*.sqlite
 data/*.sqlite3
 data/*.xlsx
+data/*.csv
 data/pytest-cache/
 data/pytest-tmp/
 data/llm-cache/

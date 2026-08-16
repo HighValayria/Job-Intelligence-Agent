@@ -1,0 +1,37 @@
+database:
+  path: data/algorithm_push.sqlite3
+
+selection:
+  source_slots:
+    leetcode: 2
+    nowcoder: 2
+    interview_extra: 1
+  daily_topic_constraints:
+    min_distinct_primary_tags: 3
+    max_per_primary_tag: 2
+  recent_topic_window_days: 7
+  topic_balance_underrepresented_bonus: 0.15
+
+recency:
+  hard_exclude_days: 2
+  penalty:
+    3: 0.25
+    4: 0.50
+    5: 0.75
+
+push:
+  enabled: false
+  adapter: console
+  time: "09:00"
+  timezone: Asia/Shanghai
+
+qq_bot:
+  target_type: group
+  target_id:
+  app_id:
+  client_secret:
+  access_token:
+  base_url: https://api.sgroup.qq.com
+  token_url: https://bots.qq.com/app/getAppAccessToken
+  timeout_seconds: 10
+  msg_type: 0
