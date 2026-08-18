@@ -7,7 +7,9 @@ from pathlib import Path
 from algorithm_push.models import PushResult, PushStatus, QuestionInput, QuestionPool
 from algorithm_push.push import QQBotAdapter, QQBotConfig
 from algorithm_push.registry import AlgorithmQuestionRepository
+from algorithm_push.entertainment import MemeImage
 from algorithm_push.webhook import handle_qq_event, parse_qq_event
+import algorithm_push.webhook.handler as webhook_handler
 
 
 class CapturingQQAdapter(QQBotAdapter):
@@ -137,6 +139,47 @@ def test_webhook_add_question_requires_admin(tmp_path: Path) -> None:
             os.environ.pop("QQ_BOT_ADMIN_OPENIDS", None)
         else:
             os.environ["QQ_BOT_ADMIN_OPENIDS"] = previous
+
+
+def test_webhook_fun_request_replies_with_memes(tmp_path: Path) -> None:
+    previous_fetch = webhook_handler.fetch_recent_meme_images
+
+    def fake_fetch_recent_meme_images(**kwargs):
+        return [
+            MemeImage(
+                image_url=f"https://example.test/meme-{index}.jpg",
+                thread_url=f"https://tieba.baidu.com/p/{index}",
+                title=f"meme {index}",
+                post_date=date(2026, 8, 18),
+            )
+            for index in range(1, 5)
+        ]
+
+    try:
+        webhook_handler.fetch_recent_meme_images = fake_fetch_recent_meme_images
+        with AlgorithmQuestionRepository(tmp_path / "algorithm.sqlite3") as repository:
+            repository.initialize()
+            adapter = CapturingQQAdapter()
+
+            result = handle_qq_event(
+                {
+                    "d": {
+                        "id": "msg-fun",
+                        "content": "<@!bot> 来点乏味",
+                        "group_openid": "group-openid-1",
+                        "author": {"user_openid": "user-openid-1"},
+                    }
+                },
+                repository=repository,
+                adapter=adapter,
+            )
+
+            assert result.handled is True
+            assert "来点趣味" in (result.reply_text or "")
+            assert "https://example.test/meme-4.jpg" in (result.reply_text or "")
+            assert adapter.sent[0]["msg_id"] == "msg-fun"
+    finally:
+        webhook_handler.fetch_recent_meme_images = previous_fetch
 
 
 def _seed_questions(repository: AlgorithmQuestionRepository) -> None:

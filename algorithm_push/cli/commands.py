@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
 import tempfile
 from collections import Counter
@@ -10,6 +11,7 @@ from pathlib import Path
 
 from env_loader import load_env_file
 
+from algorithm_push.entertainment import fetch_recent_meme_images
 from algorithm_push.ingestion import import_default_questions, import_questions_file
 from algorithm_push.models import (
     DailySelection,
@@ -183,6 +185,36 @@ def main(argv: list[str] | None = None) -> None:
                 db_path=args.db_path,
                 config_path=args.config,
             )
+            return
+        if args.command == "fun-memes":
+            memes = fetch_recent_meme_images(
+                limit=args.limit,
+                days=args.days,
+                forum=args.forum,
+                shuffle=not args.no_shuffle,
+            )
+            if args.json:
+                print(
+                    json.dumps(
+                        [
+                            {
+                                "image_url": meme.image_url,
+                                "thread_url": meme.thread_url,
+                                "title": meme.title,
+                                "post_date": meme.post_date.isoformat()
+                                if meme.post_date
+                                else None,
+                            }
+                            for meme in memes
+                        ],
+                        ensure_ascii=False,
+                        indent=2,
+                    )
+                )
+            else:
+                print(_render_memes(memes))
+            if len(memes) < args.limit:
+                raise SystemExit(1)
             return
         if args.command == "preview":
             selection = _selector(repository, args).select(
@@ -377,6 +409,15 @@ def _parse_args(argv: list[str] | None) -> argparse.Namespace:
     qq_webhook_parser.add_argument("--host", default="127.0.0.1")
     qq_webhook_parser.add_argument("--port", type=int, default=8787)
 
+    fun_parser = subparsers.add_parser(
+        "fun-memes", help="Fetch recent meme images from Baidu Tieba"
+    )
+    fun_parser.add_argument("--limit", type=int, default=4)
+    fun_parser.add_argument("--days", type=int, default=5)
+    fun_parser.add_argument("--forum", default="meme图")
+    fun_parser.add_argument("--json", action="store_true")
+    fun_parser.add_argument("--no-shuffle", action="store_true")
+
     preview_parser = subparsers.add_parser("preview", help="Preview one daily selection")
     preview_parser.add_argument("--date", type=_parse_date, default=date.today())
     preview_parser.add_argument("--seed", type=int)
@@ -547,6 +588,22 @@ def _render_qq_check(report: QQBotCheckResult) -> str:
     if report.error:
         lines.append("")
         lines.append(f"error: {report.error}")
+    return "\n".join(lines)
+
+
+def _render_memes(memes) -> str:
+    if not memes:
+        return "没有抓到 5 天内的楼主 meme 图。"
+    lines = ["来点趣味"]
+    for index, meme in enumerate(memes, start=1):
+        date_text = meme.post_date.isoformat() if meme.post_date else "unknown-date"
+        lines.extend(
+            [
+                f"{index}. {meme.title} ({date_text})",
+                meme.image_url,
+                f"source: {meme.thread_url}",
+            ]
+        )
     return "\n".join(lines)
 
 

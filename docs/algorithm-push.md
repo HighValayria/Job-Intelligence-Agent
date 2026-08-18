@@ -118,10 +118,33 @@ settings. Supported commands:
 今日算法
 状态
 加题 <pool> <url> <tag> <title>
+来点趣味
 ```
 
 `加题` only allows `leetcode_custom` and `interview_manual`, and requires the
 sender openid to be listed in `QQ_BOT_ADMIN_OPENIDS`.
+
+The entertainment command recognizes common variants such as `来点妙趣`,
+`来点乏味`, `整点乐子`, `来点梗图`, and `来点 meme`. It fetches four image URLs
+from recent first-floor posts in Baidu Tieba `meme图吧`, limited to posts within
+the last five days.
+
+The same entertainment feature is exposed as a CLI command, which is convenient
+when WorkBuddy is the QQ entry point:
+
+```powershell
+python -m algorithm_push fun-memes --limit 4 --days 5
+python -m algorithm_push fun-memes --limit 4 --days 5 --json
+```
+
+Recommended WorkBuddy command mapping:
+
+```text
+帮助/菜单 -> reply with the command template directly.
+加题 ... -> run python -m algorithm_push --db-path data/algorithm_push.sqlite3 add-question ...
+强推 -> run python -m algorithm_push --db-path data/algorithm_push.sqlite3 scheduler-once --force --adapter qq
+来点趣味/来点妙趣/来点乏味/整点乐子 -> run python -m algorithm_push fun-memes --limit 4 --days 5
+```
 
 Export the registry to CSV for review:
 

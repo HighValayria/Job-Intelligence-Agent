@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import os
+import re
 import shlex
 from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+from algorithm_push.entertainment import MemeImage, fetch_recent_meme_images
 from algorithm_push.models import PushResult, PushStatus, QuestionInput, QuestionPool
 from algorithm_push.push import QQBotAdapter
 from algorithm_push.push.formatter import format_daily_questions
@@ -21,6 +23,7 @@ HELP_TEXT = """支持命令：
 今日算法
 状态
 加题 <pool> <url> <tag> <title>
+来点趣味
 
 pool 可选：leetcode_custom, interview_manual"""
 
@@ -104,9 +107,51 @@ def _reply_for_context(
                 f"push: {push_status}",
             ]
         )
+    if _is_fun_request(content):
+        memes = fetch_recent_meme_images(limit=4, days=5)
+        return _format_meme_reply(memes)
     if lowered.startswith("加题 ") or lowered.startswith("add "):
         return _handle_add_question(content, context, repository)
     return HELP_TEXT
+
+
+def _is_fun_request(content: str) -> bool:
+    normalized = re.sub(r"\s+", "", content.lower())
+    exact = {
+        "来点趣味",
+        "来点妙趣",
+        "来点乏味",
+        "来点乐子",
+        "来点梗图",
+        "来点meme",
+        "来点memes",
+        "整点趣味",
+        "整点妙趣",
+        "整点乐子",
+        "整点梗图",
+        "整点meme",
+    }
+    if normalized in exact:
+        return True
+    return bool(
+        re.search(r"(来点|整点|搞点).{0,8}(趣|妙趣|乏味|乐子|梗图|meme|memes)", normalized)
+    )
+
+
+def _format_meme_reply(memes: list[MemeImage]) -> str:
+    if not memes:
+        return "这次没抓到 5 天内的楼主 meme 图，可以稍后再试。"
+    lines = ["来点趣味"]
+    for index, meme in enumerate(memes, start=1):
+        date_text = meme.post_date.isoformat() if meme.post_date else "unknown-date"
+        lines.extend(
+            [
+                f"{index}. {meme.title} ({date_text})",
+                meme.image_url,
+                f"source: {meme.thread_url}",
+            ]
+        )
+    return "\n".join(lines)
 
 
 def _handle_add_question(
